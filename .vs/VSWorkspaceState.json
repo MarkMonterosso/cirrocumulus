@@ -1,0 +1,11 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\ansible",
+    "\\ansible\\roles\\apply_base_host_configs\\tasks",
+    "\\ansible\\roles\\create_vm_clones\\tasks",
+    "\\ansible\\roles\\delete_vm_clones\\tasks"
+  ],
+  "SelectedNode": "\\README.md",
+  "PreviewInSolutionExplorer": false
+}

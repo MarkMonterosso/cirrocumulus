@@ -1,0 +1,40 @@
+#######################################################################################
+#   
+#   Author      :   Mark Monterosso - Mark.Monterosso@NetApp.com
+#   Date        :   23 Mar 20
+#   
+#   Description :   Role to support infrastructure provisioning in VM Workstation
+#                   Deterimes the correct playbook to execute based on OS family
+#   
+#   Dependencies:   
+#                   
+#######################################################################################
+
+#--------------------------------------------------------------------------------------
+#
+# Linux Family Definitions: 
+#   (https://github.com/ansible/ansible/blob/37ae2435878b7dd76b812328878be620a93a30c9/lib/ansible/module_utils/facts.py#L267)
+#       RedHat = 'RedHat',          Fedora = 'RedHat',      CentOS = 'RedHat',          Scientific = 'RedHat',
+#       SLC = 'RedHat',             Ascendos = 'RedHat',    CloudLinux = 'RedHat',      PSBM = 'RedHat',
+#       OracleLinux = 'RedHat',     OVS = 'RedHat',         OEL = 'RedHat',             Amazon = 'RedHat',
+#       XenServer = 'RedHat',       Ubuntu = 'Debian',      Debian = 'Debian',          Raspbian = 'Debian',         Slackware = 'Slackware',        SLES = 'Suse',
+#       SLED = 'Suse',              openSUSE = 'Suse',      SuSE = 'Suse',              SLES_SAP = 'Suse',           Gentoo = 'Gentoo',              Funtoo = 'Gentoo',
+#       Archlinux = 'Archlinux',    Manjaro = 'Archlinux',  Mandriva = 'Mandrake',      Mandrake = 'Mandrake',
+#       Solaris = 'Solaris',        Nexenta = 'Solaris',    OmniOS = 'Solaris',         OpenIndiana = 'Solaris',
+#       SmartOS = 'Solaris',        AIX = 'AIX',            Alpine = 'Alpine',          MacOSX = 'Darwin',
+#       FreeBSD = 'FreeBSD',        HPUX = 'HP-UX'
+#
+#--------------------------------------------------------------------------------------
+
+#--------------------------------------------------------------------------------------
+#
+# Workflow:
+#
+#--------------------------------------------------------------------------------------
+---
+
+- include:          redhat.yml
+  when:             ansible_os_family == 'RedHat'
+
+- include:          debian.yml
+  when:             ansible_os_family == 'Debian'

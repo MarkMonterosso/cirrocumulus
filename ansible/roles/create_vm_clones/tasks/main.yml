@@ -1,0 +1,167 @@
+#######################################################################################
+#   
+#   Author      :   Mark Monterosso - Mark.Monterosso@NetApp.com
+#   Date        :   23 Mar 20
+#   
+#   Description :   Role to support infrastructure provisioning in VM Workstation
+#                   Will create create VMs from a clone Template
+#   
+#   Dependencies:   VM Workstation 15.x or Fusion 11
+#                   Custom python module - vm_get_facts 
+#
+#######################################################################################
+
+#--------------------------------------------------------------------------------------
+#
+# Workflow:
+#   + Get list of vms
+#   + Find parent vm by name
+#   + Store parent vm ID
+#   + Create clone off of parent ID
+#   + Get the newly created clone ID
+#   + Power on clone
+#   + Wait for clone to be assigned an IP
+#   + Test SSH connection to the clone IP
+#   + Creat an in memory group and add the clone IP
+#
+#--------------------------------------------------------------------------------------
+---
+
+# Find clone template ID
+- name:                 "Looking for VM Template {{ vm_vars.vm_os_template }}"
+  vm_get_facts:                                             # Custom Python Module 
+    vm_name:            "{{ vm_vars.vm_os_template }}"
+    rest_uri:           "{{ vmware_rest_uri }}"
+    rest_username:      "{{ rest_username }}"
+    rest_password:      "{{ rest_password }}"
+  register:             vm_facts_return
+
+- name:                 "Storing VM Template Values" 
+  set_fact:
+    vm_id:              "{{ vm_facts_return.result.vm.id }}"
+    vm_power_state:     "{{ vm_facts_return.result.vm.power_state }}"
+
+# Fail if clone template is not in the proper state
+    #-----------------------
+    # FEATURE REQ: Assess state of clone template - it can't be online
+    # MAM 27 Mar 20
+    # FEATURE ADD:
+    # MAM 30 Mar 20 
+    #-----------------------
+- name:                 "Validating VM Template Power State - Will Skip on Success or Fail Otherwise" 
+  fail:
+    msg:                "{{ vm_os_template }} is not in a powered off state. The VM must be powered off to clone it."
+  when:                 vm_power_state != "poweredOff"
+  no_log:               true              
+
+# Looking to see if an existing clone was found
+    #-----------------------
+    # FEATURE REQ: Validate clone doesn't already exit - It's possibly ok to just let Ansible fail
+    # MAM 27 Mar 20
+    # FEATURE ADD:
+    # MAM 30 Mar 20 
+    #-----------------------
+- name:                 "Checking if Clone, {{ vm_vars.name }}, Already Exists - A Failure is a Success Here"
+  vm_get_facts:                                             # Custom Python Module 
+    vm_name:            "{{ vm_vars.name }}"
+    rest_uri:           "{{ vmware_rest_uri }}"
+    rest_username:      "{{ rest_username }}"
+    rest_password:      "{{ rest_password }}"
+  register:             clone_facts_return
+  ignore_errors:        true
+  no_log:               true 
+
+# Fail if clone was found
+- name:                 "Evaluating Clone Values - Will Skip if Ok and Fail if not Ok"
+  fail:
+    msg:                "{{ vm_vars.name }} already exists!"
+  when:                 "'FAILED' not in clone_facts_return.msg"
+  no_log:               true
+
+# Create clone from template
+- name:                 "Create Clone from {{ vm_vars.vm_os_template }}"
+  uri:
+    method:             POST
+    url:                "{{ vmware_rest_uri }}/api/vms"
+    url_username:       "{{ rest_username }}"
+    url_password:       "{{ rest_password }}"
+    body_format:        json
+    body:
+        name:           "{{ vm_vars.name }}"
+        parentId:       "{{ vm_id }}"
+    headers:
+      accept:           "application/vnd.vmware.vmw.rest-v1+json"
+      content-type:     "application/vnd.vmware.vmw.rest-v1+json"
+    status_code:        201
+    validate_certs:     false
+    force_basic_auth:   yes
+    return_content:     yes
+
+# Get the clone ID
+- name:                 "Looking for Clone {{ vm_vars.name }}"
+  vm_get_facts:                                             # Custom Python Module 
+    vm_name:            "{{ vm_vars.name }}"
+    rest_uri:           "{{ vmware_rest_uri }}"
+    rest_username:      "{{ rest_username }}"
+    rest_password:      "{{ rest_password }}"
+  register:             clone_facts_return
+
+- name:                 "Storing Clone Values" 
+  set_fact:
+    clone_id:           "{{ clone_facts_return.result.vm.id }}"
+    clone_power_state:  "{{ clone_facts_return.result.vm.power_state }}"
+
+# Power on VM
+- name:                 "Powering on {{ vm_vars.name }}" 
+  uri:
+    method:             PUT
+    url:                "{{ vmware_rest_uri }}/api/vms/{{ clone_id }}/power"
+    url_username:       "{{ rest_username }}"
+    url_password:       "{{ rest_password }}"
+    body:               "on"
+    headers:
+      accept:           "application/vnd.vmware.vmw.rest-v1+json"
+      content-type:     "application/vnd.vmware.vmw.rest-v1+json"
+    validate_certs:     false
+    status_code:        200
+    force_basic_auth:   yes
+    return_content:     yes
+
+# Get VM vNIC IP
+- name:                 "Waiting for {{ vm_vars.name }}'s IP to be Assigned"
+  uri:
+    method:             GET
+    url:                "{{ vmware_rest_uri }}/api/vms/{{ clone_id }}/ip"
+    url_username:       "{{ rest_username }}"
+    url_password:       "{{ rest_password }}"
+    headers:
+      accept:           "application/vnd.vmware.vmw.rest-v1+json"
+    validate_certs:     false
+    force_basic_auth:   yes
+    return_content:     yes   
+  register:             json_resp_clone_ip
+  ignore_errors:        true
+  until:                json_resp_clone_ip.status == 200
+  retries:              "{{ wait_for_ip_retry }}"
+  delay:                "{{ wait_for_ip_sec }}"
+
+- set_fact:
+    clone_ip:           "{{ json_resp_clone_ip.json.ip }}"
+
+# Test SSH Connection
+- name:                 "Testing SSH Connectivity to {{ vm_vars.name }}"
+  command:              ssh -o StrictHostKeyChecking=no {{ lab_admin_user }}@{{ clone_ip }} "echo success"
+  register:             ssh_response
+  retries:              "{{ wait_for_ip_retry }}"
+  delay:                "{{ wait_for_ip_sec }}"
+
+- fail:
+    msg:                "SSH connection failed to {{ vm_vars.name }}"
+  when:                 ssh_response.stdout != "success"
+
+# Adding Temporary Clone IP to Inventory
+- name:                 "Adding {{ clone_ip }} to 'tmp_ip_grp' Inventory Group"
+  add_host:
+    hostname:           "{{ clone_ip }}"
+    ansible_host:       "{{ clone_ip }}"
+    groups:              tmp_ip_grp

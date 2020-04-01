@@ -1,0 +1,21 @@
+#######################################################################################
+#   
+#   Author      :   Mark Monterosso - Mark.Monterosso@NetApp.com
+#   Date        :   23 Mar 20
+#   
+#   Description :   Role to support infrastructure provisioning in VM Workstation
+#                   Execute tasks specific to Debian implementations    
+#   
+#   Dependencies: 
+#                   
+#######################################################################################
+
+#--------------------------------------------------------------------------------------
+#
+# Workflow:
+#
+#--------------------------------------------------------------------------------------
+---
+
+- debug:
+    msg: "{{ inventory_hostname }} - You are debian"
