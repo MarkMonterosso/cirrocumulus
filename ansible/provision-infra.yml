@@ -38,7 +38,10 @@
 
    - name: do facts module to get latest information
      setup:
-   
+     loop:                      "{{ deploy_vm_hosts }}" 
+     when:
+        -                       deploy_vm_hosts is defined
+
    - name:                      "Applying Base Host Configurations"
      include_role:
         name:                   apply_base_host_configs
