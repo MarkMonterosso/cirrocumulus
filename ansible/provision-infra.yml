@@ -36,10 +36,6 @@
      when:
         -                       deploy_vm_hosts is defined
 
-- hosts:                        tmp_ip_grp                              #Hosts have DHCP IPs only right now, this will change to static
-  name:                         Configuring Virtual Environment
-  gather_facts:                 true
-
   vars_files:
     -                           [ 'vars-provision-infra.yml' ]
 
@@ -47,5 +43,9 @@
    - name:                      "Applying Base Host Configurations"
      include_role:
         name:                   apply_base_host_configs
+     vars:
+        vm_vars:                "{{ item }}"
+     loop:                      "{{ deploy_vm_hosts }}" 
      when:
         -                       deploy_vm_hosts is defined
+        -                       inventory_hostname is in ['tmp_ip_grp']
