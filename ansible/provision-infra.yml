@@ -36,11 +36,11 @@
      when:
         -                       deploy_vm_hosts is defined
 
-   - name: do facts module to get latest information
-     setup:
-     loop:                      "{{ deploy_vm_hosts }}" 
-     when:
-        -                       deploy_vm_hosts is defined
+   - name: show all the hosts matching the pattern, i.e. all but the group www
+     debug:
+        msg: "{{ item }}"
+     with_inventory_hostnames:
+        - all
 
    - name:                      "Applying Base Host Configurations"
      include_role:
