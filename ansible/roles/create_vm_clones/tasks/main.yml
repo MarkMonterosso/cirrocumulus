@@ -165,3 +165,14 @@
     hostname:           "{{ item.name }}"
     ansible_host:       "{{ clone_ip }}"
     groups:              tmp_ip_grp
+
+-debug:
+    msg: "{{ hostvars[host].ansible_default_ipv4.address }}"
+
+#- name: "Build hosts file"
+#  lineinfile:   dest=/etc/hosts 
+#    regexp='.*{{ host }}$'
+#    line=="{{ hostvars[host].ansible_default_ipv4.address }} {{ host }}"
+#    state=present
+#  when: hostvars[host].ansible_default_ipv4.address is defined
+ # with_items: groups['all']
