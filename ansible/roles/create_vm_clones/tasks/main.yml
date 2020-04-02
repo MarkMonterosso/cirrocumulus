@@ -167,7 +167,7 @@
     groups:              tmp_ip_grp
 
 - debug:
-    msg: "{{ hostvars[host].ansible_default_ipv4.address }}"
+    msg: "{{ hostvars }}"
 
 #- name: "Build hosts file"
 #  lineinfile:   dest=/etc/hosts 
