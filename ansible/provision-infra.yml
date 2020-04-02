@@ -39,8 +39,7 @@
    - name: show all the hosts matching the pattern, i.e. all but the group www
      debug:
         msg: "{{ item }}"
-     with_inventory_hostnames:
-        - all
+     with_items: "{{ groups['tmp_ip_grp']}}"
 
    - name:                      "Applying Base Host Configurations"
      include_role:
