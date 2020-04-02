@@ -36,7 +36,7 @@
      when:
         -                       deploy_vm_hosts is defined
 
-   - name: show all the hosts matching the pattern, i.e. all but the group www
+   - name: Re-gather Facts
      setup:
      with_items: "{{ groups['tmp_ip_grp']}}"
 
