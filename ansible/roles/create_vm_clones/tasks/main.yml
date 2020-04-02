@@ -167,8 +167,7 @@
     groups:              tmp_ip_grp
 
 - debug:
-    msg: "{{ ansible_hosts }}"
-
+    msg: "{{ hostvars['tmp_ip_grp'] }}"
 #- name: "Build hosts file"
 #  lineinfile:   dest=/etc/hosts 
 #    regexp='.*{{ host }}$'
