@@ -26,7 +26,7 @@
   vars_files:
     -                           [ 'vars-provision-infra.yml' ]
 
-#  tasks:
+  tasks:
 #   - name:                      "Creating Clones"
 #     include_role:
 #        name:                   create_vm_clones
