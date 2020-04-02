@@ -166,7 +166,7 @@
     ansible_host:       "{{ clone_ip }}"
     groups:              tmp_ip_grp
 
--debug:
+- debug:
     msg: "{{ hostvars[host].ansible_default_ipv4.address }}"
 
 #- name: "Build hosts file"
