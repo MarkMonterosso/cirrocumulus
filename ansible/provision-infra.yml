@@ -27,14 +27,15 @@
     -                           [ 'vars-provision-infra.yml' ]
 
   tasks:
-#   - name:                      "Creating Clones"
-#     include_role:
-#        name:                   create_vm_clones
-#     vars:
-#        vm_vars:                "{{ item }}"
-#     loop:                      "{{ deploy_vm_hosts }}" 
-#     when:
-#        -                       deploy_vm_hosts is defined
+   - name:                      "Creating Clones"
+     include_role:
+        name:                   create_vm_clones
+     vars:
+        vm_vars:                "{{ item }}"
+     loop:                      "{{ deploy_vm_hosts }}" 
+     when:
+        -                       deploy_vm_hosts is defined
+
    - name: do facts module to get latest information
      setup:
    
