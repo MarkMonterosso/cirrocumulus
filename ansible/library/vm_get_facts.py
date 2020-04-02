@@ -1,22 +1,18 @@
 #######################################################################################
 #   
-#   Author      :   Mark Monterosso - Mark.Monterosso@NetApp.com
+#   Author      :   Mark Monterosso
 #   Date        :   23 Mar 20
 #   
-#   Description :   
+#   Description :   Custom Python module for ansible to perform gather VM data
+#                   from VM Workstation / Fusion 
 #                   
-#
-#   Dependencies:  
+#   Dependencies:  VM Workstation 15 / Fusion 11
 #                  
-#                   
 #######################################################################################
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 #!/usr/bin/python
-
-# Copyright: (c) 2018, Terry Jones <terry.jones@example.org>
-# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 ANSIBLE_METADATA = {
     'metadata_version': '1.1',

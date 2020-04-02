@@ -1,6 +1,6 @@
 #######################################################################################
 #   
-#   Author      :   Mark Monterosso - Mark.Monterosso@NetApp.com
+#   Author      :   Mark Monterosso
 #   Date        :   23 Mar 20
 #   
 #   Description :   The purpose of this code is to facilitate cloning of virtual
@@ -36,10 +36,6 @@
      when:
         -                       deploy_vm_hosts is defined
 
-  vars_files:
-    -                           [ 'vars-provision-infra.yml' ]
-
-  tasks:
    - name:                      "Applying Base Host Configurations"
      include_role:
         name:                   apply_base_host_configs

@@ -1,6 +1,6 @@
 #######################################################################################
 #   
-#   Author      :   Mark Monterosso - Mark.Monterosso@NetApp.com
+#   Author      :   Mark Monterosso
 #   Date        :   23 Mar 20
 #   
 #   Description :   Role to support infrastructure provisioning in VM Workstation
@@ -19,7 +19,7 @@
 
 - name: "Running plays for {{ ansible_os_family }} OS"
 - hostname:
-    name: web01
+    name: "{{}}"
 
 
 - debug:
