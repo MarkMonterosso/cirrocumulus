@@ -36,7 +36,7 @@
 #     when:
 #        -                       deploy_vm_hosts is defined
    - name: do facts module to get latest information
-       setup:
+     setup:
    
    - name:                      "Applying Base Host Configurations"
      include_role:
