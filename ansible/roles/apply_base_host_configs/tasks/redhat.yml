@@ -81,13 +81,14 @@
   become:           true
 
 # Make Sure Host Returns to Active State on New IP
-- name:             "Testing SSH Connectivity to {{ vm_vars.name }}"
+- name:             "Testing SSH Connectivity to {{ item.name }}"
   command:          ssh -o StrictHostKeyChecking=no {{ lab_admin_user }}@{{ item.static_ip }} "echo success"
+  delegate_to:      localhost
   register:         ssh_response
   retries:          "{{ wait_for_ip_retry }}"
   delay:            "{{ wait_for_ip_sec }}"
 
 - name:             "If Skipped, SSH Connection Succeeded"
   fail:
-    msg:            "SSH connection failed to {{ vm_vars.name }}"
+    msg:            "SSH connection failed to {{ item.name }}"
   when:             ssh_response.stdout != "success"
