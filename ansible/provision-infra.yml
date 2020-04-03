@@ -36,16 +36,19 @@
      when:
         -                       deploy_vm_hosts is defined
 
-   - name: Re-gather Facts
-     setup:
-     with_items: "{{ groups['tmp_ip_grp']}}"
+- hosts:                        tmp_ip_grp
+  name:                         Creating and Powering on Virtual Environments
+  gather_facts:                 true
+
+  vars_files:
+    -                           [ 'vars-provision-infra.yml' ]
 
    - name:                      "Applying Base Host Configurations"
      include_role:
         name:                   apply_base_host_configs
      vars:
         vm_vars:                "{{ item }}"
-     loop:                      "{{ deploy_vm_hosts }}" 
+     loop:                      "{{ deploy_vm_hosts }}"
      when:
         -                       deploy_vm_hosts is defined
-        -                       inventory_hostname is in ['tmp_ip_grp']
+        -                       item.name == hostvars[inventory_hostname]['ansible_host'] #inventory_hostname = temporary clone_ip | ansible_host = hostname
