@@ -23,10 +23,10 @@
     state:          latest
 
 - name: Stop Network Manager
-  command: systemcl stop NetworkManager
+  command: systemctl stop NetworkManager
 
 - name: Disable Network Manager
-  command: systemcl disable NetworkManager
+  command: systemctl disable NetworkManager
 
 - name:             "Setting Hostname to {{ item.name }}" 
   hostname:
