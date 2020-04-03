@@ -27,6 +27,14 @@
     name:           "{{ item.name }}"
     use:            "{{ ansible_os_family | lower }}"
 
+- name:             "Updating Interface Settings"
+  template:
+    src:            ./redhat/interface_template
+    dest:           "/etc/sysconfig/network-scripts/{{ item.interface_name }}"
+    owner:          root
+    group:          root
+    mode:           '0644'
+
 - name:             "Updating Resolv.conf Settings"
   template:
     src:            resolv_template
@@ -43,26 +51,9 @@
     group:          root
     mode:           '0644'
 
-- name:             "Updating Interface Settings"
-  template:
-    src:            ./redhat/interface_template
-    dest:           "/etc/sysconfig/network-scripts/{{ item.interface_name }}"
-    owner:          root
-    group:          root
-    mode:           '0644'
-
 - name:             "Rebooting {{ item.name }}"
   shell:            sleep 5 && shutdown -r now "Reboot triggered by Ansible script"
   async:            1
   poll:             0
   become:           true
 
-- name: Wait for instance reboot.
-  local_action:
-    module: wait_for
-        host={{ item.static_ip }}
-        port=22
-        delay=15
-        timeout=120
-        state=started
-  become: false
