@@ -53,9 +53,9 @@
 
 - name: Reboot EC2 instance.
   shell: sleep 5 && shutdown -r now "Reboot triggered by Ansible script"
-    async: 1
-    poll: 0
-    become: true
+  async: 1
+  poll: 0
+  become: true
 
   - name: Wait for instance reboot.
     local_action:
