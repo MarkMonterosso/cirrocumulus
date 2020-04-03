@@ -45,7 +45,7 @@
 
 - name:             "Updating Interface Settings"
   template:
-    src:            /redhat/interface_template
+    src:            ./redhat/interface_template
     dest:           "/etc/sysconfig/network-sripts/{{ item.interface_name }}"
     owner:          root
     group:          root
