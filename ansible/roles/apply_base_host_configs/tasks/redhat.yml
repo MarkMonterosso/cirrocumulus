@@ -51,10 +51,20 @@
     group:          root
     mode:           '0644'
 
-- name:             "Rebooting {{ item.name }}"
-  local_action:
-    module: wait_for
-      host="{{ item.static_ip }}"
-      port=22
-      delay=1
-      timeout=300
+- name: Reboot EC2 instance.
+    shell: sleep 5 && shutdown -r now "Reboot triggered by Ansible script"
+    async: 1
+    poll: 0
+    become: true
+    tags:
+      - reboot
+
+  - name: Wait for instance reboot.
+    local_action:
+      module: wait_for
+        host={{ item.static_ip }}
+        port=22
+        delay=15
+        timeout=120
+        state=started
+    become: false
