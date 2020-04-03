@@ -160,9 +160,24 @@
   when:                 ssh_response.stdout != "success"
 
 # Adding Temporary Clone IP to Inventory
+    #-----------------------
+    # The purpose of this task is to create a host in ansible's inventory in memory
+    # in a way that allows us not to require hosts files or DNS
+    #
+    # The ansible_host/hostname entries allow us to gather facts against the DHCP
+    # assigned IP of our VMs by placing it in a temporary group that is used
+    # in the main play. If we try to put the actual hostname (item.name) in
+    # these fields, ansible will try to resolve it via DNS and it fails.
+    #  
+    # The VM variable assigns us the actual hostname and we can use that later
+    # to tie the host we are currently working with via temporary IP, to what
+    # it will eventually be configured to in the vars file. The primary key
+    # (so to speak) is what will ultimately be the actual name and hostname of the VM
+    #-----------------------
+
 - name:                 "Adding {{ item.name }} to 'tmp_ip_grp' Inventory Group"
   add_host:
-    hostname:           "{{ clone_ip }}"
+    hostname:           "{{ clone_ip }}"                    
     ansible_host:       "{{ clone_ip }}"
     vm:                 "{{ item.name }}"
     groups:              tmp_ip_grp

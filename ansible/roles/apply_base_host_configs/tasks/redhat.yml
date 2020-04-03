@@ -16,5 +16,36 @@
 #
 #--------------------------------------------------------------------------------------
 ---
-- debug:
-    msg: "{{ inventory_hostname }} - You are redhat"
+
+- name:             "Updating Packages"
+    name: '*'
+    state: latest
+
+- name:             "Setting Hostname to {{ item.name }}" 
+  hostname:
+    name:           "{{ item.name }}"
+    use:            "{{ ansible_os_family }}"
+
+- name:             "Updating Resolv.conf Settings"
+  template:
+    src:            resolv_template
+    dest:           "/etc/resolv.conf"
+    owner:          root
+    group:          root
+    mode:           '0644'
+
+- name:             "Updating Resolv.conf Settings"
+  template:
+    src:            resolv_template
+    dest:           "/etc/resolv.conf"
+    owner:          root
+    group:          root
+    mode:           '0644'
+
+- name:             "Updating Interface Settings"
+  template:
+    src:            /redhat/interface_template
+    dest:           "/etc/sysconfig/network-sripts/{{}}"
+    owner:          root
+    group:          root
+    mode:           '0644'

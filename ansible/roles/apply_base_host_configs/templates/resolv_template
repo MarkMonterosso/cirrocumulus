@@ -1,2 +1,2 @@
-search {{ search_domain }}
-nameserver {{ dns }}
+search {{ item.search_domain }}
+nameserver {{ item.dns }}
