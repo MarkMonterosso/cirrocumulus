@@ -19,8 +19,8 @@
 
 - name:             "Updating Packages"
   yum:
-    name: '*'
-    state: latest
+    name:           '*'
+    state:          latest
 
 - name:             "Setting Hostname to {{ item.name }}" 
   hostname:
@@ -46,7 +46,7 @@
 - name:             "Updating Interface Settings"
   template:
     src:            ./redhat/interface_template
-    dest:           "/etc/sysconfig/network-sripts/{{ item.interface_name }}"
+    dest:           "/etc/sysconfig/network-scripts/{{ item.interface_name }}"
     owner:          root
     group:          root
     mode:           '0644'
