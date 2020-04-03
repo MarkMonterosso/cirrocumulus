@@ -19,22 +19,22 @@
 #--------------------------------------------------------------------------------------
 ---
 
-- hosts:                        all
-  name:                         Creating and Powering on Virtual Environments
-  gather_facts:                 true
-
-  vars_files:
-    -                           [ 'vars-provision-infra.yml' ]
-
-  tasks:
-   - name:                      "Creating Clones"
-     include_role:
-        name:                   create_vm_clones
-     vars:
-        vm_vars:                "{{ item }}"
-     loop:                      "{{ deploy_vm_hosts }}" 
-     when:
-        -                       deploy_vm_hosts is defined
+#- hosts:                        all
+#  name:                         Creating and Powering on Virtual Environments
+#  gather_facts:                 true
+#
+#  vars_files:
+#    -                           [ 'vars-provision-infra.yml' ]
+#
+#  tasks:
+#   - name:                      "Creating Clones"
+#     include_role:
+#        name:                   create_vm_clones
+#     vars:
+#        vm_vars:                "{{ item }}"
+#     loop:                      "{{ deploy_vm_hosts }}" 
+#     when:
+#        -                       deploy_vm_hosts is defined
 
 - hosts:                        tmp_ip_grp
   name:                         Creating and Powering on Virtual Environments
@@ -52,4 +52,4 @@
      loop:                      "{{ deploy_vm_hosts }}"
      when:
         -                       deploy_vm_hosts is defined
-        -                       item.name == hostvars[inventory_hostname][vm] #inventory_hostname = temporary clone_ip | ansible_host = hostname
+        -                       item.name == hostvars[inventory_hostname]['vm'] 
