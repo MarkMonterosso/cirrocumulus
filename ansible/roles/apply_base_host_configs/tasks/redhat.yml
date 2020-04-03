@@ -51,5 +51,10 @@
     group:          root
     mode:           '0644'
 
-- name:             "Rebooting Host"
-  reboot:
+- name:             "Rebooting {{ item.name }}"
+  local_action:
+    module: wait_for
+      host="{{ item.static_ip }}"
+      port=22
+      delay=1
+      timeout=300
