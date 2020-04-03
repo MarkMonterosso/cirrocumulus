@@ -58,4 +58,4 @@
      loop:                      "{{ deploy_vm_hosts }}"
      when:
         -                       deploy_vm_hosts is defined
-        -                       item.name == hostvars[inventory_hostname]['ansible_host'] #inventory_hostname = temporary clone_ip | ansible_host = hostname
+        -                       item.name == hostvars[inventory_hostname]['vm'] #inventory_hostname = temporary clone_ip | ansible_host = hostname

@@ -162,5 +162,6 @@
 - name:                 "Adding {{ item.name }} to 'tmp_ip_grp' Inventory Group"
   add_host:
     hostname:           "{{ clone_ip }}"
-    ansible_host:       "{{ item.name }}"
+    ansible_host:       "{{ clone_ip }}"
+    vm:                 "{{ item.name }}"
     groups:              tmp_ip_grp
