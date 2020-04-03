@@ -42,7 +42,14 @@
 
   vars_files:
     -                           [ 'vars-provision-infra.yml' ]
+
   tasks:
+   - debug:
+        msg: "{{ hostvars[inventory_hostname] }}"
+
+   - debug:
+        msg: "{{ groups['tmp_ip_grp'] }}"
+
    - name:                      "Applying Base Host Configurations"
      include_role:
         name:                   apply_base_host_configs
