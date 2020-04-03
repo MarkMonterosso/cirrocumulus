@@ -161,19 +161,12 @@
 # Adding Temporary Clone IP to Inventory
 - name:                 "Adding {{ item.name }} to 'tmp_ip_grp' Inventory Group"
   add_host:
-    hostname:           "{{ item.name }}"
-    ansible_host:       "{{ clone_ip }}"
+    hostname:           "{{ clone_ip }}"
     groups:              tmp_ip_grp
 
-- debug:
-    msg: "{{ item }}"
-  loop: "{{ groups['tmp_ip_grp'] }}"
-  
-
-#- name: "Build hosts file"
-#  lineinfile:   dest=/etc/hosts 
-#    regexp='.*{{ host }}$'
-#    line=="{{ hostvars[host].ansible_default_ipv4.address }} {{ host }}"
-#    state=present
-#  when: hostvars[host].ansible_default_ipv4.address is defined
- # with_items: groups['all']
+# Update Ansible Hosts File
+- name: "Build hosts file"
+  lineinfile:   dest=/etc/hosts 
+    regexp='.*{{ item.name }}$'
+    line=="{{ clone_ip }} {{ item.name }}"
+    state=present
