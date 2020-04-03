@@ -166,7 +166,8 @@
     groups:              tmp_ip_grp
 
 - debug:
-    msg: "{{ groups.keys['tmp_ip_grp'] }}"
+    msg: "{{ item }}"
+  loop: "{{ groups['tmp_ip_grp'] }}"
   
 
 #- name: "Build hosts file"
