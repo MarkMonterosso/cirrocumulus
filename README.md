@@ -23,7 +23,7 @@ To get started you must have some comination of the following installed and conf
 
 ## Installation
 ```
-git clone
+git clone https://github.com/MarkMonterosso/vm-deployment.git
 ```
 ## Usage
 
