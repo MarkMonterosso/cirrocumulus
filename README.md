@@ -1,5 +1,5 @@
 # PROJECT: Cirrocumulus
-<img src="../imgs/cirrocumulus.jpeg" width=250>
+<img src="./../imgs/cirrocumulus.jpeg" width=250>
 
 
 ## Overview
@@ -22,7 +22,9 @@ To get started you must have some comination of the following installed and conf
   + <a href="https://github.com/ansible/awx">AWX (Free)</a> - This is an upstream project for Tower, a commercial derivative of AWX 
 
 ## Installation
-
+```
+git clone
+```
 ## Usage
 
 ## Versioning
