@@ -52,12 +52,10 @@
     mode:           '0644'
 
 - name: Reboot EC2 instance.
-    shell: sleep 5 && shutdown -r now "Reboot triggered by Ansible script"
+  shell: sleep 5 && shutdown -r now "Reboot triggered by Ansible script"
     async: 1
     poll: 0
     become: true
-    tags:
-      - reboot
 
   - name: Wait for instance reboot.
     local_action:
