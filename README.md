@@ -1,5 +1,5 @@
 # PROJECT: Cirrocumulus
-<img src="./../imgs/cirrocumulus.jpeg" width=250>
+<img src="https://github.com/MarkMonterosso/vm-deployment/blob/dev/imgs/cirrocumulus.jpeg" width=250>
 
 
 ## Overview
