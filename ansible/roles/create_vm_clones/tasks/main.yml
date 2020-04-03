@@ -167,7 +167,9 @@
     groups:              tmp_ip_grp
 
 - debug:
-    msg: "{{ groups.keys() }}"
+    msg: "{{ item }}"
+  loop: "{{ groups.keys() }}"
+
 #- name: "Build hosts file"
 #  lineinfile:   dest=/etc/hosts 
 #    regexp='.*{{ host }}$'
