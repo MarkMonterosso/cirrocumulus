@@ -69,7 +69,6 @@
     rest_password:      "{{ rest_password }}"
   register:             clone_facts_return
   ignore_errors:        true
-  no_log:               true 
 
 # Fail if clone was found
 - name:                 "Evaluating Clone Values - Will Skip if Ok and Fail if not Ok"
@@ -167,8 +166,8 @@
     groups:              tmp_ip_grp
 
 - debug:
-    msg: "{{ item }}"
-  loop: "{{ groups.keys() }}"
+    msg: "{{ groups.keys('tmp_ip_grp') }}"
+  
 
 #- name: "Build hosts file"
 #  lineinfile:   dest=/etc/hosts 
