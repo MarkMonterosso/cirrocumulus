@@ -22,6 +22,12 @@
     name:           '*'
     state:          latest
 
+- name: Stop Network Manager
+  command: systemcl stop networkmanager
+
+- name: Disable Network Manager
+  command: systemcl disable networkmanager
+
 - name:             "Setting Hostname to {{ item.name }}" 
   hostname:
     name:           "{{ item.name }}"
