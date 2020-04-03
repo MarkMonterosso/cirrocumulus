@@ -18,6 +18,7 @@
 ---
 
 - name:             "Updating Packages"
+  yum:
     name: '*'
     state: latest
 
