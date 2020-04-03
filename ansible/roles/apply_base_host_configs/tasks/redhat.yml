@@ -50,3 +50,6 @@
     owner:          root
     group:          root
     mode:           '0644'
+
+- name:             "Rebooting Host"
+  reboot:
