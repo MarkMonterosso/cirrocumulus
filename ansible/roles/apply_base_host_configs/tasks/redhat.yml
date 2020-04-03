@@ -6,33 +6,47 @@
 #   Description :   Role to support infrastructure provisioning in VM Workstation
 #                   Execute tasks specific to Red Hat implementations    
 #   
-#   Dependencies:  Functional and accessible Red hat system
+#   Dependencies:   Functional and accessible Red hat system
 #                   
 #######################################################################################
 
 #--------------------------------------------------------------------------------------
 #
 # Workflow:
+#   + Update packages on the Host
+#   + Stop network manager service
+#   + Disable network manager service
+#   + Set the hostname
+#   + Update the interface config files - Set static IP
+#   + Modify resolv.conf
+#   + Modify hosts file
+#   + Reboot to apply changes
+#   + Use SSH to validate connecton on newly created static IP
 #
 #--------------------------------------------------------------------------------------
 ---
 
+# Update Host
 - name:             "Updating Packages"
   yum:
     name:           '*'
     state:          latest
 
-- name: Stop Network Manager
-  command: systemctl stop NetworkManager
+# Stop Network Manager to Disable it
+- name:             Stop Network Manager
+  command:          systemctl stop NetworkManager
 
-- name: Disable Network Manager
-  command: systemctl disable NetworkManager
+# Disable Network Manager to Prevent Overwrites of Network Config Files
+- name:             Disable Network Manager
+  command:          systemctl disable NetworkManager
 
+# Set the Hostname
 - name:             "Setting Hostname to {{ item.name }}" 
   hostname:
     name:           "{{ item.name }}"
     use:            "{{ ansible_os_family | lower }}"
 
+# Update the ifcfg-<interface> File From a Template (Make IP Static)
 - name:             "Updating Interface Settings"
   template:
     src:            ./redhat/interface_template
@@ -41,7 +55,8 @@
     group:          root
     mode:           '0644'
 
-- name:             "Updating Resolv.conf Settings"
+# Update the resolv.conf From a Template
+- name:             "Updating /etc/resolv.conf Settings"
   template:
     src:            resolv_template
     dest:           "/etc/resolv.conf"
@@ -49,6 +64,7 @@
     group:          root
     mode:           '0644'
 
+# Update Host's /etc/hosts File From a Template
 - name:             "Updating /etc/hosts File"
   template:
     src:            hosts_template
@@ -57,9 +73,21 @@
     group:          root
     mode:           '0644'
 
+# Reboot Host to Apply Changes
 - name:             "Rebooting {{ item.name }}"
   shell:            sleep 5 && shutdown -r now "Reboot triggered by Ansible script"
   async:            1
   poll:             0
   become:           true
 
+# Make Sure Host Returns to Active State on New IP
+- name:             "Testing SSH Connectivity to {{ vm_vars.name }}"
+  command:          ssh -o StrictHostKeyChecking=no {{ lab_admin_user }}@{{ item.static_ip }} "echo success"
+  register:         ssh_response
+  retries:          "{{ wait_for_ip_retry }}"
+  delay:            "{{ wait_for_ip_sec }}"
+
+- name:             "If Skipped, SSH Connection Succeeded"
+  fail:
+    msg:            "SSH connection failed to {{ vm_vars.name }}"
+  when:             ssh_response.stdout != "success"
