@@ -35,10 +35,10 @@
     group:          root
     mode:           '0644'
 
-- name:             "Updating Resolv.conf Settings"
+- name:             "Updating /etc/hosts File"
   template:
-    src:            resolv_template
-    dest:           "/etc/resolv.conf"
+    src:            hosts_template
+    dest:           "/etc/hosts"
     owner:          root
     group:          root
     mode:           '0644'
@@ -46,7 +46,7 @@
 - name:             "Updating Interface Settings"
   template:
     src:            /redhat/interface_template
-    dest:           "/etc/sysconfig/network-sripts/{{}}"
+    dest:           "/etc/sysconfig/network-sripts/{{ item.interface_name }}"
     owner:          root
     group:          root
     mode:           '0644'
