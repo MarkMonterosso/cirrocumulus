@@ -16,8 +16,5 @@
 #
 #--------------------------------------------------------------------------------------
 ---
-
-- name: "Running plays for {{ ansible_os_family }} OS"
-
 - debug:
     msg: "{{ inventory_hostname }} - You are redhat"

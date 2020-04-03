@@ -154,7 +154,8 @@
   retries:              "{{ wait_for_ip_retry }}"
   delay:                "{{ wait_for_ip_sec }}"
 
-- fail:
+- name:                 "If Skipped, SSH Connection Succeeded"
+  fail:
     msg:                "SSH connection failed to {{ vm_vars.name }}"
   when:                 ssh_response.stdout != "success"
 
