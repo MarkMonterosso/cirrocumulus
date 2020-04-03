@@ -6,7 +6,7 @@
 #   Description :   Role to support infrastructure provisioning in VM Workstation
 #                   Execute tasks specific to Red Hat implementations    
 #   
-#   Dependencies:  
+#   Dependencies:  Functional and accessible Red hat system
 #                   
 #######################################################################################
 
@@ -25,7 +25,7 @@
 - name:             "Setting Hostname to {{ item.name }}" 
   hostname:
     name:           "{{ item.name }}"
-    use:            "{{ ansible_os_family }}"
+    use:            "{{ ansible_os_family | lower }}"
 
 - name:             "Updating Resolv.conf Settings"
   template:
