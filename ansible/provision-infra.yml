@@ -42,7 +42,7 @@
 
   vars_files:
     -                           [ 'vars-provision-infra.yml' ]
-
+  tasks:
    - name:                      "Applying Base Host Configurations"
      include_role:
         name:                   apply_base_host_configs
