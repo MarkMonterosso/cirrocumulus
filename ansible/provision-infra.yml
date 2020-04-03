@@ -44,12 +44,6 @@
     -                           [ 'vars-provision-infra.yml' ]
 
   tasks:
-   - debug:
-        msg: "{{ hostvars[inventory_hostname] }}"
-
-   - debug:
-        msg: "{{ groups['tmp_ip_grp'] }}"
-
    - name:                      "Applying Base Host Configurations"
      include_role:
         name:                   apply_base_host_configs
@@ -58,4 +52,4 @@
      loop:                      "{{ deploy_vm_hosts }}"
      when:
         -                       deploy_vm_hosts is defined
-        -                       item.name == hostvars[inventory_hostname]['vm'] #inventory_hostname = temporary clone_ip | ansible_host = hostname
+        -                       item.name == hostvars[inventory_hostname][vm] #inventory_hostname = temporary clone_ip | ansible_host = hostname
