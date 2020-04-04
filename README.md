@@ -1,7 +1,6 @@
 # PROJECT: Cirrocumulus
 <img src="https://github.com/MarkMonterosso/vm-deployment/blob/dev/imgs/cirrocumulus.jpeg" width=250>
 
-
 ## Overview
 The goal of this project is to provide the automated ability to create a small private cloud-like environment.
 
@@ -24,15 +23,16 @@ To get started you must have some comination of the following installed and conf
   + <a href="https://mysupport.netapp.com/site/tools/tool-eula/5e31797415040d3cce0033d3">NetApp OnTap Simulator</a>
   + <a href="https://netapp-trident.readthedocs.io/en/stable-v20.01/">Trident</a>
   
-## Configuration
+## How To Use
 
 + Download or clone this repository
     ```
     git clone https://github.com/MarkMonterosso/cirrocumulus.git    
     ```
-+ Configuring for:
++ Choose your your implementation:
   + <a href="https://github.com/MarkMonterosso/vm-deployment/blob/dev/TOWER_AWX.md">AWX or Tower</a>
   + <a href="https://github.com/MarkMonterosso/vm-deployment/blob/dev/ANSIBLE.md">Ansible Core</a>
+  
 ## Usage
 
 ## Versioning
