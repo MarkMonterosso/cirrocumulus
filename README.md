@@ -35,6 +35,7 @@ git clone https://github.com/MarkMonterosso/cirrocumulus.git
 ## Contributing
 
 ## Authors
++ Mark Monterosso - NetApp Solutions Architect with focus on Automation & DevOps
 
 ## License
 
