@@ -19,6 +19,7 @@
 #--------------------------------------------------------------------------------------
 ---
 
+# Performing tasks to create clones in VM Workstation / Fusion
 - hosts:                        all
   name:                         Creating and Powering on Virtual Environments
   gather_facts:                 true
@@ -36,6 +37,8 @@
      when:
         -                       deploy_vm_hosts is defined
 
+# Our clones are stood up with a DHCP address so they have been placed in a temp group
+# We will adjust the base host configurations to include applying static IP and hostname
 - hosts:                        tmp_ip_grp
   name:                         Creating and Powering on Virtual Environments
   gather_facts:                 true

@@ -79,16 +79,3 @@
   async:            1
   poll:             0
   become:           true
-
-# Make Sure Host Returns to Active State on New IP
-- name:             "Testing SSH Connectivity to {{ item.name }}"
-  command: ssh -o StrictHostKeyChecking=no {{ lab_admin_user }}@{{ item.static_ip }} "echo success"
-  register:         ssh_response
-  retries:          "{{ wait_for_ip_retry }}"
-  delay:            "{{ wait_for_ip_sec }}"
-  delegate_to: 127.0.0.1
-
-- name:             "If Skipped, SSH Connection Succeeded"
-  fail:
-    msg:            "SSH connection failed to {{ item.name }}"
-  when:             ssh_response.stdout != "success"

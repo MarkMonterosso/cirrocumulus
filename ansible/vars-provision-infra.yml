@@ -12,11 +12,11 @@
 #                   Clone template must have only 1 interface and configured as DHCP
 #                   
 #######################################################################################
-
+---
 #--------------------------------------------------------------------------------------
 #
 # Special Notes:
-#   + Do not have the VMWorkstation or Fusion UI open during execution it 
+#   + Do not have the VMWorkstation or Fusion UI open during execution it seems to
 #     creates file locks (.lck) that causes Ansible play to fail
 #
 #--------------------------------------------------------------------------------------
@@ -34,7 +34,6 @@
 #       wait_for_ip_retry:          <Number of retries of for commands>
 #
 #--------------------------------------------------------------------------------------
----
 
 vmware_rest_uri:            "https://192.168.1.151:8697"
 lab_admin_user:             "root"
@@ -69,7 +68,7 @@ deploy_vm_hosts:
         subnet:                 255.255.255.0,
         dns:                    192.168.1.1,
         search_domain:         	dev.lab.us,
-        interface_name:         ifcfg-ens33                 #Need to make this more dynamic in playbook
+        interface_name:         ifcfg-ens33                 #FIX ME: Need to make this more dynamic in playbook
       }
 
     - { 
@@ -80,5 +79,39 @@ deploy_vm_hosts:
         subnet:                 255.255.255.0,
         dns:                    192.168.1.1,
         search_domain:          dev.lab.us,
-        interface_name:         ens33                       #Need to make this more dynamic in playbook
+        interface_name:         ens33                       #FIX ME: Need to make this more dynamic in playbook
       }
+
+
+#--------------------------------------------------------------------------------------
+#
+# COMING SOON
+# deploy_docker: 
+#    Defines all the base values for the deployment of docker on a host or hosts
+#   
+#    - { 
+#      }
+#
+#--------------------------------------------------------------------------------------
+
+#--------------------------------------------------------------------------------------
+#
+# COMING SOON
+# deploy_kubernetes: 
+#    Defines all the base values for the deployment of kubernetes on a host or hosts
+#   
+#    - { 
+#      }
+#
+#--------------------------------------------------------------------------------------
+
+#--------------------------------------------------------------------------------------
+#
+# COMING SOON
+# deploy_netapp: 
+#    Defines all the base values for creating our NetApp environment
+#   
+#    - { 
+#      }
+#
+#--------------------------------------------------------------------------------------
