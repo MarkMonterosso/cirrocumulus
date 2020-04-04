@@ -40,4 +40,3 @@ git clone https://github.com/MarkMonterosso/cirrocumulus.git
 ## License
 
 ## Acknowledgements
-
