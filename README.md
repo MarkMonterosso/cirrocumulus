@@ -35,6 +35,8 @@ The following sections must be already installed in your environment.
 - [ ] Decide which virtualization platform are you using:
   - [ ] Purchase and install VMWorkstation 15.x+
   - [ ] Purchase and install Fusion 11+
+- [ ] Create your set of VM templates VM Workstation or Fusion
+        <br>_Example:<br> <img src="https://github.com/MarkMonterosso/vm-deployment/blob/dev/imgs/vmworkstation/vmworkstation_templates.PNG"/>_
 - [ ] Decide which implementation of Ansible you are using:
   - [ ] Download and install Ansible Core
   - [ ] Download and install AWX
