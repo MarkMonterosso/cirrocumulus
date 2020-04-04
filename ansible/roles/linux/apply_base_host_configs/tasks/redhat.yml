@@ -83,7 +83,7 @@
 # Make Sure Host Returns to Active State on New IP
 - name:             "Testing SSH Connectivity to {{ item.name }}"
   command:          ssh -o StrictHostKeyChecking=no {{ lab_admin_user }}@{{ item.static_ip }} "echo success"
-  connection:       local
+  ansible_host:     local
   register:         ssh_response
   retries:          "{{ wait_for_ip_retry }}"
   delay:            "{{ wait_for_ip_sec }}"
