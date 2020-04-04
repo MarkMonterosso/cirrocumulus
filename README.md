@@ -32,7 +32,7 @@ To get started you must have some comination of the following installed and conf
     ```
 + Configuring for:
   + <a href="https://github.com/MarkMonterosso/vm-deployment/blob/dev/TOWER_AWX.md">AWX or Tower</a>
-
+  + <a href="https://github.com/MarkMonterosso/vm-deployment/blob/dev/ANSIBLE.md">Ansible Core</a>
 ## Usage
 
 ## Versioning
