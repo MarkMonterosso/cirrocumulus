@@ -37,7 +37,7 @@ The following sections must be already installed in your environment.
   - [ ] Purchase and install Fusion 11+
 - [ ] Enable the REST interface for VMWorkstation or Fusion
     <br>__Note:__ _Make sure you perform the setup for the HTTPS services_<br>
-    <img srg="https://github.com/MarkMonterosso/vm-deployment/blob/dev/imgs/vmworkstation/vmworkstation_rest.PNG" width=350/>
+    <img srg="https://github.com/MarkMonterosso/vm-deployment/blob/dev/imgs/vmworkstation/vmworkstation_rest.PNG" width=350>
   - [ ] <a href="https://docs.vmware.com/en/VMware-Workstation-Pro/15.0/com.vmware.ws.using.doc/GUID-C3361DF5-A4C1-432E-850C-8F60D83E5E2B.html">VM Workstation REST setup guide</a>
   - [ ] <a href="https://docs.vmware.com/en/VMware-Fusion/11/com.vmware.fusion.using.doc/GUID-63847178-3425-4D92-A043-EFBC1251C606.html">VM Fusion REST setup guide</a>
 - [ ] Create your set of VM templates VM Workstation or Fusion
