@@ -27,7 +27,7 @@
   tasks:
    - name:                      "Deleting Virtual Machines"
      include_role:
-        name:                   delete_vm_clones
+        name:                   vmware/delete_vm_clones
      vars:
         vm_vars:                "{{ item }}"
      loop:                      "{{ deploy_vm_hosts }}" 

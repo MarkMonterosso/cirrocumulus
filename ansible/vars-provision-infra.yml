@@ -68,7 +68,7 @@ deploy_vm_hosts:
         gateway:                192.168.1.1, 
         subnet:                 255.255.255.0,
         dns:                    192.168.1.1,
-        search_domain:         	rm.lab.us,
+        search_domain:         	dev.lab.us,
         interface_name:         ifcfg-ens33                 #Need to make this more dynamic in playbook
       }
 
@@ -79,6 +79,6 @@ deploy_vm_hosts:
         gateway:                192.168.1.1, 
         subnet:                 255.255.255.0,
         dns:                    192.168.1.1,
-        search_domain:          rm.lab.us,
-        interface_name:         ens33                        #Need to make this more dynamic in playbook
+        search_domain:          dev.lab.us,
+        interface_name:         ens33                       #Need to make this more dynamic in playbook
       }

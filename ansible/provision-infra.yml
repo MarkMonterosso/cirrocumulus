@@ -29,7 +29,7 @@
   tasks:
    - name:                      "Creating Clones"
      include_role:
-        name:                   create_vm_clones
+        name:                   vmware/create_vm_clones
      vars:
         vm_vars:                "{{ item }}"
      loop:                      "{{ deploy_vm_hosts }}" 
@@ -46,7 +46,7 @@
   tasks:
    - name:                      "Applying Base Host Configurations"
      include_role:
-        name:                   apply_base_host_configs
+        name:                   linux/apply_base_host_configs
      vars:
         vm_vars:                "{{ item }}"
      loop:                      "{{ deploy_vm_hosts }}"
