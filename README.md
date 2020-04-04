@@ -55,15 +55,7 @@ The following sections must be already installed in your environment.
   
 ## Usage
 TBD
-
-## Versioning
-TBD
-## Contributing
-TBD
 ## Authors
 + Mark Monterosso - NetApp Solutions Architect with focus on Automation & DevOps
-
-## License
-TBD
 ## Acknowledgements
 TBD
