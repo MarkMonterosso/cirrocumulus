@@ -15,12 +15,15 @@ This project assumes you have a basic understanding of VMWare, Ansible, NetApp, 
 To get started you must have some comination of the following installed and configured in your environment.
 
 #### Technologies
-+ <a href="https://www.vmware.com/products/workstation-pro/workstation-pro-evaluation.html">VMWorkstation 15.x</a> or <a href="https://www.vmware.com/go/downloadfusion">VMFusion 11</a>
-+ Ansible
++ Required: <a href="https://www.vmware.com/products/workstation-pro/workstation-pro-evaluation.html">VMWorkstation 15.x</a> or <a href="https://www.vmware.com/go/downloadfusion">VMFusion 11</a>
++ Required: Ansible 2.9+
   + <a href="https://docs.ansible.com/">Ansible Tower (Paid)</a>
   + <a href="https://docs.ansible.com/">Ansible Core (Free)</a>
   + <a href="https://github.com/ansible/awx">AWX (Free)</a> - This is an upstream project for Tower, a commercial derivative of AWX 
-
++ Optional: NetApp
+  + <a href="https://mysupport.netapp.com/site/tools/tool-eula/5e31797415040d3cce0033d3">NetApp OnTap Simulator</a>
+  + <a href="https://netapp-trident.readthedocs.io/en/stable-v20.01/">Trident</a>
+  
 ## Installation
 ```
 git clone https://github.com/MarkMonterosso/cirrocumulus.git
