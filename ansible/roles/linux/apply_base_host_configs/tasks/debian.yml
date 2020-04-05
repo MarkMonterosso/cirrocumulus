@@ -6,16 +6,76 @@
 #   Description :   Role to support infrastructure provisioning in VM Workstation
 #                   Execute tasks specific to Debian implementations    
 #   
-#   Dependencies: 
+#   Dependencies:   Functional and accessible Debian system
 #                   
 #######################################################################################
 
 #--------------------------------------------------------------------------------------
 #
 # Workflow:
+#   + Update packages on the Host
+#   + Stop network manager service
+#   + Disable network manager service
+#   + Set the hostname
+#   + Update the interface config files - Set static IP
+#   + Modify resolv.conf
+#   + Modify hosts file
+#   + Reboot to apply changes
+#   + Use SSH to validate connecton on newly created static IP
 #
 #--------------------------------------------------------------------------------------
 ---
 
-- debug:
-    msg: "{{ inventory_hostname }} - You are debian"
+# Update Host
+- name:             "Updating Packages"
+  apt:
+    name:           '*'
+    state:          latest
+
+# Stop Network Manager to Disable it
+- name:             Stop Network Manager
+  command:          systemctl stop NetworkManager.service
+
+# Disable Network Manager to Prevent Overwrites of Network Config Files
+- name:             Disable Network Manager
+  command:          systemctl disable NetworkManager.service
+
+# Set the Hostname
+- name:             "Setting Hostname to {{ item.name }}" 
+  hostname:
+    name:           "{{ item.name }}"
+    use:            "{{ ansible_os_family | lower }}"
+
+# Update the ifcfg-<interface> File From a Template (Make IP Static)
+- name:             "Updating Interface Settings"
+  template:
+    src:            ./debian/interface_template
+    dest:           "/etc/netplan/01-netcfg.yaml"
+    owner:          root
+    group:          root
+    mode:           '0644'
+
+# Update the resolv.conf From a Template
+- name:             "Updating /etc/resolv.conf Settings"
+  template:
+    src:            resolv_template
+    dest:           "/etc/resolv.conf"
+    owner:          root
+    group:          root
+    mode:           '0644'
+
+# Update Host's /etc/hosts File From a Template
+- name:             "Updating /etc/hosts File"
+  template:
+    src:            hosts_template
+    dest:           "/etc/hosts"
+    owner:          root
+    group:          root
+    mode:           '0644'
+
+# Reboot Host to Apply Changes
+- name:             "Rebooting {{ item.name }}"
+  shell:            sleep 5 && shutdown -r now "Reboot triggered by Ansible script"
+  async:            1
+  poll:             0
+  become:           true

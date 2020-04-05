@@ -35,7 +35,7 @@
 #
 #--------------------------------------------------------------------------------------
 
-vmware_rest_uri:            "https://192.168.1.151:8697"
+vmware_rest_uri:            "https://x.x.x.x:8697"
 lab_admin_user:             "root"
 rest_username:              "{{ rest_username }}"
 rest_password:              "{{ rest_password }}"
@@ -55,6 +55,7 @@ wait_for_ip_retry:          10
 #        subnet:                 <netmask>,
 #        dns:                    <dns ip>,
 #        search_domain:          <search domain ex. dns.mylab.com>
+#        interface_name:         ifcfg-ens33
 #      }
 #
 #--------------------------------------------------------------------------------------
@@ -63,10 +64,10 @@ deploy_vm_hosts:
     - { 
         name:                   devops-1, 
         vm_os_template:         centos7_template, 
-        static_ip:              192.168.1.161, 
-        gateway:                192.168.1.1, 
+        static_ip:              x.x.x.10, 
+        gateway:                x.x.x.1, 
         subnet:                 255.255.255.0,
-        dns:                    192.168.1.1,
+        dns:                    x.x.x.2,
         search_domain:         	dev.lab.us,
         interface_name:         ifcfg-ens33                 #FIX ME: Need to make this more dynamic in playbook
       }
@@ -74,10 +75,10 @@ deploy_vm_hosts:
     - { 
         name:                   devops-2, 
         vm_os_template:         ubuntu18_template, 
-        static_ip:              192.168.1.162, 
-        gateway:                192.168.1.1, 
+        static_ip:              x.x.x.11, 
+        gateway:                x.x.x.1, 
         subnet:                 255.255.255.0,
-        dns:                    192.168.1.1,
+        dns:                    x.x.x.2,
         search_domain:          dev.lab.us,
         interface_name:         ens33                       #FIX ME: Need to make this more dynamic in playbook
       }

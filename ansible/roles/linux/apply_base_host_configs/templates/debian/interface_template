@@ -1,0 +1,11 @@
+network:
+    version: 2
+    renderer: networkd
+    ethernets:
+        {{ item.interface }}:
+            dhcp4: no
+            addresses: [{{ item.static_ip }} / {{ item.subnet | ipaddr('net')  }}]
+            gateway4: {{ item.gateway }}
+            nameservers:
+                addresses: {{ item.dns }}
+            
