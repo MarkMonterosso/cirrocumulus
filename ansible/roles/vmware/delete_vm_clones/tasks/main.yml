@@ -1,0 +1,120 @@
+#######################################################################################
+#   
+#   Author      :   Mark Monterosso
+#   Date        :   23 Mar 20
+#   
+#   Description :   Role to support infrastructure provisioning in VM Workstation
+#                   Will remove power off and remove VMs
+#   
+#   Dependencies:   VM Workstation 15.x or Fusion 11
+#                   Custom python module - vm_get_facts 
+#                   
+#######################################################################################
+
+#--------------------------------------------------------------------------------------
+#
+# Workflow:
+#   + Get the VM information through custom python module
+#   + Determine the state of the VM (on, suspended, paused) and turn the clone back on
+#   + Turn the clone off
+#   + Delete clone
+#
+#--------------------------------------------------------------------------------------
+---
+
+# Find clone ID
+- name:                 "Looking for VM {{ vm_name }}"
+  vm_get_facts:                                             # Custom Python Module 
+    vm_name:            "{{ vm_name }}"
+    rest_uri:           "{{ vmware_rest_uri }}"
+    rest_username:      "{{ rest_username }}"
+    rest_password:      "{{ rest_password }}"
+  register:             vm_facts_return
+  ignore_errors:        true
+
+- name:                 "Storing VM Values"
+  set_fact:
+    vm_id:              "{{ vm_facts_return.result.vm.id }}"
+    vm_power_state:     "{{ vm_facts_return.result.vm.power_state }}"
+  when:                 vm_facts_return.failed == false
+
+# If power_state = suspended - Power on
+- name:                 "Powering on {{ vm_name }}" 
+  uri:
+    method:             PUT
+    url:                "{{ vmware_rest_uri }}/api/vms/{{ vm_id }}/power"
+    url_username:       "{{ rest_username }}"
+    url_password:       "{{ rest_password }}"
+    body:               "on"
+    headers:
+      accept:           "application/vnd.vmware.vmw.rest-v1+json"
+      content-type:     "application/vnd.vmware.vmw.rest-v1+json"
+    validate_certs:     false
+    status_code:        200
+    force_basic_auth:   yes
+    return_content:     yes
+  when:
+    -                   vm_id is defined
+    -                   vm_power_state == "suspended"
+
+
+# If power_state = paused - Unpause
+- name:                 "Unpausing {{ vm_name }}" 
+  uri:
+    method:             PUT
+    url:                "{{ vmware_rest_uri }}/api/vms/{{ vm_id }}/power"
+    url_username:       "{{ rest_username }}"
+    url_password:       "{{ rest_password }}"
+    body:               "unpause"
+    headers:
+      accept:           "application/vnd.vmware.vmw.rest-v1+json"
+      content-type:     "application/vnd.vmware.vmw.rest-v1+json"
+    validate_certs:     false
+    status_code:        200
+    force_basic_auth:   yes
+    return_content:     yes
+  when:
+    -                   vm_id is defined
+    -                   vm_power_state == "paused"
+
+# If power_state = poweredOn - Power off
+- name:                 "Powering off {{ vm_name }}" 
+  uri:
+    method:             PUT
+    url:                "{{ vmware_rest_uri }}/api/vms/{{ vm_id }}/power"
+    url_username:       "{{ rest_username }}"
+    url_password:       "{{ rest_password }}"
+    body:               "off"
+    headers:
+      accept:           "application/vnd.vmware.vmw.rest-v1+json"
+      content-type:     "application/vnd.vmware.vmw.rest-v1+json"
+    validate_certs:     false
+    status_code:        200
+    force_basic_auth:   yes
+    return_content:     yes
+  when:
+    -                   vm_id is defined
+    -                   vm_power_state != "poweredOff"
+
+#---------------------------------------------------------------------------------------
+# FIX ME: Need to handle .lck files removal - happens if GUI is up during DELETE
+# MAM 30 Mar 20
+#---------------------------------------------------------------------------------------
+
+# if power_state = poweredOff - Delete clone
+- name:                 "Deleting {{ vm_name }}"
+  uri:
+    method:             DELETE
+    url:                "{{ vmware_rest_uri }}/api/vms/{{ vm_id }}"
+    url_username:       "{{ rest_username }}"
+    url_password:       "{{ rest_password }}"
+    body:               ""
+    headers:
+      accept:           "application/vnd.vmware.vmw.rest-v1+json"
+      content-type:     "application/vnd.vmware.vmw.rest-v1+json"
+    status_code:        204
+    validate_certs:     false
+    force_basic_auth:   yes
+    return_content:     yes
+  when:
+    -                 vm_id is defined

@@ -1,0 +1,87 @@
+#######################################################################################
+#   
+#   Author      :   Mark Monterosso
+#   Date        :   23 Mar 20
+#   
+#   Description :   Role to support infrastructure provisioning in VM Workstation
+#                   Execute tasks specific to Debian implementations    
+#   
+#   Dependencies:   Functional and accessible Debian system
+#                   
+#######################################################################################
+
+#--------------------------------------------------------------------------------------
+#
+# Workflow:
+#   + Update packages on the Host
+#   + Stop network manager service
+#   + Disable network manager service
+#   + Set the hostname
+#   + Update the interface config files - Set static IP
+#   + Modify resolv.conf
+#   + Modify hosts file
+#   + Reboot to apply changes
+#   + Use SSH to validate connecton on newly created static IP
+#
+#--------------------------------------------------------------------------------------
+---
+
+# Update Host
+- name:             "Updating Packages"
+  apt:
+    name:           '*'
+    state:          latest
+
+# Set the Hostname
+- name:             "Setting Hostname to {{ host_info.name }}" 
+  hostname:
+    name:           "{{ host_info.name }}"
+
+# Update the Interface File From a Template (Make IP Static)
+- name:             "Updating Interface Settings"
+  template:
+    src:            ./debian/interface_template
+    dest:           "/etc/netplan/01-netcfg.yaml"
+    owner:          root
+    group:          root
+    mode:           '0644'
+
+# Update the resolv.conf From a Template
+- name:             "Updating /etc/resolv.conf Settings"
+  template:
+    src:            resolv_template
+    dest:           "/etc/resolv.conf"
+    owner:          root
+    group:          root
+    mode:           '0644'
+
+# Update Host's /etc/hosts File From a Template
+- name:             "Updating /etc/hosts File"
+  template:
+    src:            hosts_template
+    dest:           "/etc/hosts"
+    owner:          root
+    group:          root
+    mode:           '0644'
+
+# Disabling Cloud Init (Debian Cloud Image Specific)
+- name:             "Updating Interface Settings"
+  template:
+    src:            ./debian/disable_cloud_init
+    dest:           "/etc/cloud/cloud.cfg.d/99-disable-network-config.cfg"
+    owner:          root
+    group:          root
+    mode:           '0644'
+
+# Removing Cloud Init File (Debian Cloud Image Specific)
+- name: Removing the 50-cloud-init file
+  file:
+    path: /etc/netplan/50-cloud-init.yaml
+    state: absent
+
+# Reboot Host to Apply Changes
+- name:             "Rebooting {{ host_info.name }}"
+  shell:            sleep 5 && shutdown -r now "Reboot triggered by Ansible script"
+  async:            1
+  poll:             0
+  become:           true

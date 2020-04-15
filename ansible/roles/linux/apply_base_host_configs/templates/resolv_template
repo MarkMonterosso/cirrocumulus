@@ -1,0 +1,2 @@
+search {{ host_info.search_domain }}
+nameserver {{ host_info.dns }}

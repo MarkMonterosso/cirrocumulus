@@ -1,0 +1,101 @@
+#######################################################################################
+#   
+#   Author      :   Mark Monterosso
+#   Date        :   23 Mar 20
+#   
+#   Description :   The purpose of this code is to facilitate cloning of virtual
+#                   machines in VM Workstation
+#   
+#   Dependencies:   VM Workstation 15.x or Fusion 11
+#                   
+#######################################################################################
+
+#--------------------------------------------------------------------------------------
+#
+# Workflow:
+#   + Invoke role to create VM clones
+#   + Invoke role to apply base ONTAP configurations 
+#   + Invoke role to apply base LINUX configurations
+#
+#--------------------------------------------------------------------------------------
+---
+
+# Performing tasks to create clones in VM Workstation / Fusion
+- hosts:                                 localhost
+  name:                                  Creating and Powering on Virtual Environments
+  gather_facts:                          false
+
+  vars_files:
+    -                                    [ 'vars-provision-infra.yml' ]
+
+  tasks:
+    - name:                              "Creating Clones"
+      include_role:
+        name:                            vmware/create_vm_clones
+      vars:
+        deployment_type:                 "{{ item[0].type }}"
+        vm_name:                         "{{ item[1].name }}"
+        vm_template:                     "{{ item[1].vm_os_template }}"
+      with_subelements:                              
+          -                              "{{ deployment }}"
+          -                              vms
+      when:
+          -                              deployment is defined
+
+# Performing tasks to configure the ontap simulator
+- hosts:                                 ontap_sim                   
+  name:                                  Provisioning Storage
+  gather_facts:                          false
+
+  vars_files:
+    -                                    [ 'vars-provision-infra.yml' ]
+
+  tasks:
+    - name:                              "Importing Appropriate Variable Template"
+      include_vars:
+        dir:                             vars/netapp_cluster_configs
+        files_matching:                  "{{ deployment_type }}_{{ cluster_info.name }}_day0"
+      vars:
+        deployment_type:                 "{{ item[0].type }}"
+        cluster_info:                    "{{ item[1] }}"
+      with_subelements:                              
+          -                              "{{ deployment }}"
+          -                              vms
+      when:
+          -                              deployment is defined and cluster_info.name == hostvars[inventory_hostname]['host']   # This is defined in the vars file as type of deployment
+
+    - name:                              "Applying Day 0 Ontap Configuration"
+      include_role:
+        name:                            netapp/day_zero
+        apply:
+            connection:                  local
+      vars:
+        ansible_python_interpreter:      /usr/bin/python3   # May need a better way to address this
+        deployment_type:                 "{{ item[0].type }}"
+        cluster_info:                    "{{ item[1] }}"
+        netapp_hostname:                 "{{ inventory_hostname }}"
+      with_subelements:                              
+          -                              "{{ deployment }}"
+          -                              vms
+      when:
+          -                              deployment is defined and cluster_info.name == hostvars[inventory_hostname]['host'] 
+   
+# Performing tasks to configure the linux hosts
+- hosts:                                linux   # This is defined in the vars file as type of deployment
+  name:                                 Configuring Linux Hosts
+  gather_facts:                         true
+
+  vars_files:
+    -                                   [ 'vars-provision-infra.yml' ]
+  tasks:
+    - name:                             "Applying Base Linux Configuration"
+      include_role:
+        name:                           linux/apply_base_host_configs
+      vars:
+        deployment_type:                "{{ item[0].type }}"
+        host_info:                      "{{ item[1] }}"
+      with_subelements:                             
+          -                             "{{ deployment }}"
+          -                             vms
+      when:
+          -                             deployment is defined and host_info.name == hostvars[inventory_hostname]['host']

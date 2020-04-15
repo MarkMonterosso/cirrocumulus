@@ -1,0 +1,2 @@
+127.0.0.1 localhost
+{{ host_info.static_ip }} {{ host_info.name }}

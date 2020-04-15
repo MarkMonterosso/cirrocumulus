@@ -1,0 +1,97 @@
+#######################################################################################
+#   
+#   Author      :   Mark Monterosso
+#   Date        :   09 Apr 20
+#   
+#   Description :  Variables file to support day zero provisioning of ONTAP
+#                  
+#   
+#   Dependencies:  ONTAP System with management port configured
+#                  Account to connect to ONTAP system configured (Admin is fine to start)                
+#                   
+#######################################################################################
+---
+
+#--------------------------------------------------------------------------------------
+#
+# license:  <comma separated list of licenses>
+#       
+#--------------------------------------------------------------------------------------
+licenses:  SMKQROWJNQYQSDAAAAAAAAAAAAAA,CAYHXPKBFDUFZGABGAAAAAAAAAAA,WSKTAQKBFDUFZGABGAAAAAAAAAAA,APTLYPKBFDUFZGABGAAAAAAAAAAA,OUVWXPKBFDUFZGABGAAAAAAAAAAA,QFATWPKBFDUFZGABGAAAAAAAAAAA,KYMEAQKBFDUFZGABGAAAAAAAAAAA
+
+#--------------------------------------------------------------------------------------
+#
+# ntp:
+#   Configure NTP Servers
+#
+#       - { server: <ntp server> }
+#       
+#--------------------------------------------------------------------------------------
+ntp:
+  - { server: 129.6.15.28 }
+
+#--------------------------------------------------------------------------------------
+#
+# aggregates:
+#   Details surrounding aggregate creations
+#
+#       - { 
+#            name:           <aggr name>, 
+#            node:           <node to configure aggregate on>, 
+#            disk_count:     <number of disks in aggregate>, 
+#            max_raid:       <maximum raid size>
+#         }
+#       
+#--------------------------------------------------------------------------------------
+aggregates:
+  - { name: devops_aggr1, node: devops-clu-01, disk_count: 16, max_raid: 16 }
+
+#--------------------------------------------------------------------------------------
+#
+# ports:
+#   Set port configurations
+#
+#       - { 
+#            node:           <node the port belongs to>, 
+#            port:           <port name>, 
+#            mtu:            <MTU spec for the port>
+#         }
+#       
+#--------------------------------------------------------------------------------------
+ports:
+  - { node: devops-clu-01, port: e0b, mtu: 1500 }
+  - { node: devops-clu-01, port: e0d, mtu: 1500 }
+
+#--------------------------------------------------------------------------------------
+#
+# interface_groups:
+#   Creation of interface groups
+#
+#       - { 
+#            name:                    <interface group name>, 
+#            ports:                   <comma list of ports to put in interface group>, 
+#            mtu:                     <MTU spec for the port>,
+#            distribution_function:   <[mac| ip | port | sequential]>,
+#            mode:                    <[multimode | singlemode | dynamic]>,
+#            node:                    <node the interface  group belongs on>
+#         }
+#       
+#--------------------------------------------------------------------------------------
+interface_groups: 
+  - { name: a0a, mtu: 1500, ports: 'e0b,e0d', distribution_function: ip, mode: singlemode,  node: devops-clu-01 }
+
+#--------------------------------------------------------------------------------------
+#
+# broadcast_domains:
+#   Creation of broadcast_domains
+#
+#       - { 
+#            name:                    <broadcast domain name>, 
+#            ipspace:                 <ipspace the broadcast domain belongs to>, 
+#            ports:                   <ports belonging to broadcast domain (node:port)>,
+#            mtu:                     <MTU spec for the broadcast domain>
+#         }
+#       
+#--------------------------------------------------------------------------------------
+broadcast_domains:
+  - { name: devops_bd, mtu: 1500, ipspace: Default, ports: 'devops-clu-01:a0a' }

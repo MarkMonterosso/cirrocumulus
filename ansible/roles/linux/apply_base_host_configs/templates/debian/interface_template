@@ -1,0 +1,11 @@
+network:
+    version: 2
+    renderer: networkd
+    ethernets:
+        {{ host_info.interface_name }}:
+            dhcp4: no
+            addresses: [{{ (host_info.static_ip + '/' + host_info.subnet ) | ipaddr('host/prefix') }}]
+            gateway4: {{ host_info.gateway }}
+            nameservers:
+                addresses: [{{ host_info.dns }}]
+            
