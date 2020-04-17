@@ -39,7 +39,7 @@
 ---
 
 ## Workstation / Fusion REST Creds
-# vmware_rest_uri:            "https://1x.x.x.x:8697"
+# vmware_rest_uri:            "https://10.0.0.250:8697"
 # rest_username:              "{{ rest_username }}"
 # rest_password:              "{{ rest_password }}"
 
@@ -65,7 +65,7 @@
 #           ontap_sim
 #
 # LINUX HOST DEPLOYMENT EXAMPLE:
-#    - type:                       [ linux | ontap_sim ]
+#    - type:                       linux
 #      vms:
 #        - name:                   <hostname and name of VM>
 #          vm_os_template:         <vm template to clone from>
@@ -84,6 +84,9 @@
 #          cluster_name:           <what you want the cluster name to be>
 #          cluster_mgmt_ip:        <what you want the cluster management interface IP to be> 
 #          cluster_mgmt_netmask:   <subnet mask for the management interface>
+#          node_ips:
+#            -                      <node 1 ip>
+#            -                      <node 2 ip>
 #
 #--------------------------------------------------------------------------------------
  
@@ -115,3 +118,5 @@
 #           cluster_name:           devops-clu
 #           cluster_mgmt_ip:        10.0.0.12  
 #           cluster_mgmt_netmask:   255.255.255.0
+#          node_ips:
+#            -                      10.0.0.13

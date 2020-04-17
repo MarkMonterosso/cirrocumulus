@@ -43,7 +43,7 @@
           -                              deployment is defined
 
 # Performing tasks to configure the ontap simulator
-- hosts:                                 ontap_sim                   
+- hosts:                                 ontap_sim   # This is defined in the vars file as type of deploymen                   
   name:                                  Provisioning Storage
   gather_facts:                          false
 
@@ -63,6 +63,9 @@
           -                              vms
       when:
           -                              deployment is defined and cluster_info.name == hostvars[inventory_hostname]['host']   # This is defined in the vars file as type of deployment
+
+    - pause:
+        seconds: 30
 
     - name:                              "Applying Day 0 Ontap Configuration"
       include_role:

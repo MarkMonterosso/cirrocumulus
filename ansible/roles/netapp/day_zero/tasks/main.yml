@@ -12,6 +12,10 @@
 #--------------------------------------------------------------------------------------
 #
 # Workflow:
+#   + Locate the cluster management lif 
+#   + Get node count
+#   + Get user specified IP count
+#   + Validate the user provided enough node IPs
 #   + Setup cluster licenses
 #   + Create aggregates
 #   + Create NTP server
@@ -21,10 +25,13 @@
 #   + Adjust interface group MTU size
 #   + Create new broadcast domains
 #   + Add ports into new broadcast domains
+#   + Change cluster management lif IP
+#   + Change all node IPs
 #
 #--------------------------------------------------------------------------------------
 ---
 
+# Locate the Cluster Management LIF
 - name:                     Find cluster management lif
   na_ontap_info:
     hostname:               "{{ netapp_hostname }}"
@@ -41,13 +48,31 @@
     loop_var:               lif   
   when:                     lif.role == 'cluster_mgmt'  
 
-- set_fact:
-    node_mgmt_lif:          "{{ lif.interface_name }}"
-  loop:                     "{{ net_interface_info_output.ontap_info.net_interface_info.values() | list }}"    
+# Get Number of Nodes Managment LIFs in the Cluster
+- name:                     Counting Node Mgmt LIFs
+  set_fact:
+    node_lifs:              "{{ node_lifs | default([]) + [node_lif.interface_name] }}"
+  loop:                     "{{ net_interface_info_output.ontap_info.net_interface_info.values() | list }}"
   loop_control:
-    loop_var:               lif   
-  when:                     lif.role == 'node_mgmt'  
+    loop_var:               node_lif
+  when:                     node_lif.role =='node_mgmt'
 
+- name:                     Counting user provided node IPs
+  set_fact:
+    node_lif_count:        "{{ node_lifs | length }}"
+
+# Get the Number of User Specified IPs
+- name:                     Counting user provided node IPs
+  set_fact:
+    node_ip_count:          "{{ cluster_info.node_ips | length }}"
+   
+# Fail if not Enough Node IPs Specified
+- name:                     Validating user specified enough node IPs (Skipping of OK)
+  fail:                     
+    msg:                    "You have not provided enough IPs for the number of nodes"
+  when:                     node_ip_count != node_lif_count
+  
+# Add Cluster Licenses
 - name:                     Setup licenses
   na_ontap_license:
     state:                  present
@@ -58,6 +83,7 @@
     https:                  true
     validate_certs:         false
 
+# Create Aggregates
 - name:                     Create Aggregates
   na_ontap_aggregate:
     state:                  present
@@ -74,6 +100,7 @@
   with_items:               "{{ aggregates }}"
   when:                     aggregates is defined and aggregates != None
 
+# Add NTP Servers
 - name:                     Create NTP server
   na_ontap_ntp:             
     state:                  present
@@ -86,6 +113,7 @@
   with_items:               "{{ ntp }}"
   when:                     ntp is defined and ntp != None
 
+# Remove Ports from Broadcast Domain
 - name:                     Remove ports from Default broadcast domain
   na_ontap_broadcast_domain_ports:
     state:                  absent
@@ -99,6 +127,7 @@
   with_items:               "{{ ports }}"
   when:                     ports is defined and ports != None
 
+# Modify Port MTU Sizes
 - name:                     Modify Net Port MTU
   na_ontap_net_port:
     state:                  present
@@ -113,6 +142,7 @@
   with_items:               "{{ ports }}"
   when:                     ports is defined and ports != None
 
+# Create an Interface Group
 - name:                     Create Interface Group
   na_ontap_net_ifgrp:
     state:                  present
@@ -130,6 +160,7 @@
   when:                     interface_groups is defined and interface_groups != None
   register:                 ifgrpstatus
 
+# Modify the Interface Group MTU Sizes
 - name:                     Modify Interface Group MTU
   na_ontap_net_port:
     state:                  present
@@ -151,6 +182,7 @@
     seconds:                30
   when:                     ifgrpstatus.changed or ifgrpportstatus.changed
 
+# Create a New Broadcast Domain
 - name:                     Create broadcast domain
   na_ontap_broadcast_domain:
     state:                  present
@@ -166,6 +198,7 @@
   with_items:               "{{ broadcast_domains }}"
   when:                     broadcast_domains is defined and broadcast_domains != None
 
+# Add Ports to the New Broadcast Domain
 - name:                     Add ports to Broadcast Domain
   na_ontap_broadcast_domain_ports:
     state:                  present
@@ -185,6 +218,8 @@
     # FEATURE ADDED: 
     # MAM 15 Apr 20
     #-----------------------
+
+# Change the Cluster Management IP
 - name:                     Modify the cluster management IP
   na_ontap_interface:
     state:                  present
@@ -195,5 +230,25 @@
     hostname:               "{{ netapp_hostname }}"
     username:               "{{ netapp_username }}"
     password:               "{{ netapp_password }}"
+  ignore_errors:            true
+  poll:                     0
+
+# Change the Node IPs
+- set_fact:
+    node_netmask:           "{{ cluster_info.cluster_mgmt_netmask }}"
+    cluster_name:           "{{ cluster_info.cluster_name }}"
+    new_cluster_ip:         "{{ cluster_info.cluster_mgmt_ip }}"
+
+- name:                     Modify the node management IP
+  na_ontap_interface:
+    state:                  present
+    interface_name:         "{{ item[1] }}"
+    address:                "{{ item[0] }}"
+    netmask:                "{{ node_netmask }}"
+    vserver:                "{{ cluster_name }}"
+    hostname:               "{{ new_cluster_ip }}"
+    username:               "{{ netapp_username }}"
+    password:               "{{ netapp_password }}"
+  loop:                     "{{ cluster_info.node_ips | zip(node_lifs | list) | list }}"
   ignore_errors:            true
   poll:                     0

@@ -66,6 +66,7 @@ EXAMPLES = '''
 RETURN = '''
 '''
 
+import re
 import requests 
 import json 
 import sys 
@@ -108,7 +109,18 @@ class VirtualMachine(object):
         if vm_mgmt_response.status_code == 200:           
            json_vm_mgmt_response = json.loads(vm_mgmt_response.text)
            for vm_path in json_vm_mgmt_response:
-               vm_name = vm_path['path'].rsplit('\\',1)[1].rsplit('.',1)[0]
+               # --------
+               # FIXED: MAM 16 Apr 20
+               # 
+               # Removed: vm_name = vm_path['path'].rsplit('\\',1)[1].rsplit('.',1)[0]
+               # To support different slashes for Fusion output
+               #
+               # Added the following 3 lines
+               # -------- 
+               vm_path_split = re.split(r'/|\\',vm_path['path'])
+               vm_path_split = vm_path_split[len(vm_path_split)-1]
+               vm_name = vm_path_split.split('.')[0]
+
                if vm_name.lower() == self.module.params['vm_name'].lower():
                    dict_vm_data['name'] = vm_name
                    dict_vm_data['id'] = vm_path['id']

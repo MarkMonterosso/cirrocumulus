@@ -23,8 +23,8 @@ be somewhat of a choose your own adventure by enabling or disabling certain feat
 ## Technologies
 
 + __Virtualization Platform__ (Choose one)
-  +  <a href="https://www.vmware.com/products/workstation-pro/workstation-pro-evaluation.html">VMWorkstation 15.x</a> 
-  +  <a href="https://www.vmware.com/go/downloadfusion">VMFusion 11</a>
+  +  <a href="https://www.vmware.com/products/workstation-pro/workstation-pro-evaluation.html">VMWorkstation Pro 15.x</a> 
+  +  <a href="https://www.vmware.com/go/downloadfusion">VMFusion Pro 11</a>
 +  __Operating Systems__ (At least one, your templates and VMs will be built off these)
    +  <a href="https://wiki.centos.org/Download">Centos 7</a>
       +  _Note: CentOS-7-x86_64-DVD-1908 was used in testing_
@@ -47,8 +47,8 @@ be somewhat of a choose your own adventure by enabling or disabling certain feat
 ## Preparation
 The following sections must be already installed in your environment.
 - [ ] Decide which virtualization platform are you using:
-  - [ ] Purchase and install VMWorkstation 15.x+
-  - [ ] Purchase and install Fusion 11+
+  - [ ] Purchase and install VMWorkstation Pro 15.x+
+  - [ ] Purchase and install Fusion Pro 11+
 - [ ] Enable the REST interface for VMWorkstation or Fusion
     <br>__Note:__ _Make sure you perform the setup for the HTTPS services_<br>
     <img src="https://github.com/MarkMonterosso/vm-deployment/blob/master/imgs/vmworkstation/vmworkstation_rest.PNG" width=350>
@@ -57,7 +57,8 @@ The following sections must be already installed in your environment.
 - [ ] Create your set of VM templates VM Workstation or Fusion (Linux Hosts Only)
         <br>_Example:<br> <img src="https://github.com/MarkMonterosso/vm-deployment/blob/master/imgs/vmworkstation/vmworkstation_templates.PNG"/>_
   - [ ] Templates mush have ssh keys setup to Ansible host
-  - [ ] Template must have only _**one**_ interface and configured as DHCP
+  - [ ] Templates must have only _**one**_ interface and configured as DHCP
+  - [ ] Templates must be routable to your ansible installation
 
 - [ ] Decide which implementation of Ansible you are using:
   - [ ] Download and install Ansible Core
@@ -72,6 +73,7 @@ The following sections must be already installed in your environment.
   - [ ] If you are using Ansible core, simply clone the repository and place it somewhere logical on your Ansible host
 - [ ] Make sure the following packages on your ansible host
   ```
+    re
     requests 
     json 
     sys 

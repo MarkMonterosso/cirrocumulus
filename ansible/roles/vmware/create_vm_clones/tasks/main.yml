@@ -145,9 +145,6 @@
   retries:              "{{ wait_retry }}"
   delay:                "{{ wait_secs }}"
 
-- debug:
-    msg:      "{{ json_resp_clone_ip.json.ip }}"
-
 - set_fact:
     clone_dhcp_ip:      "{{ json_resp_clone_ip.json.ip }}"
 
