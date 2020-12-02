@@ -8,11 +8,14 @@
 #   Dependencies:   
 #                   
 #######################################################################################
-- name:                     "Deleting Cifs Server on {{ vserver.name }}"
-  na_ontap_cifs_server:
-    state:                  absent
-    name:                   "test"
-    vserver:                "{{ vserver.name }}"
-    hostname:               "{{ netapp_hostname }}"
-    username:               "{{ netapp_username }}"
-    password:               "{{ netapp_password }}"
+- name:                         Delete CIFS share
+  na_ontap_cifs:
+    state:                      absent
+    share_name:                 "{{ cifs_share.share_name}}"
+    path:                       "{{ cifs_share.share_path                       | default('/' + cifs_share.share_name)}}"
+    vserver:                    "{{ cifs_share.vserver }}"
+    share_properties:           "{{ cifs_share.share_properties }}"
+    symlink_properties:         "{{ cifs_share.symlink_properties }}"
+    hostname:                   "{{ netapp_hostname }}"
+    username:                   "{{ netapp_username }}"
+    password:                   "{{ netapp_password }}"
