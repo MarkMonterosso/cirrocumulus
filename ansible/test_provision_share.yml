@@ -91,3 +91,13 @@
           when:
             -                           cifs_shares is defined
             -                           operation == 'create'
+            
+        - name:                         "Invoking Volume Management Tasks"
+          include_role:             
+            name:                       netapp/manage_volumes
+          loop:                         "{{ volumes }}"
+          loop_control:             
+            loop_var:                   volume
+          when:
+            -                           volumes is defined
+            -                           operation == 'delete'
