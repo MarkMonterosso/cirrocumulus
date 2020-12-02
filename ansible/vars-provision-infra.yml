@@ -1,149 +1,29 @@
 #######################################################################################
 #   
 #   Author      :   Mark Monterosso
-#   Date        :   23 Mar 20
+#   Date        :   20 Apr 20
 #   
-#   Description :   The purpose of this code is to facilitate cloning of virtual
-#                   machines in VM Workstation
+#   Description :                 
 #   
-#   Dependencies:   VM Workstation 15.x or Fusion 11
-#                   Custom python module - vm_get_facts
-#                   Clone templates mush have ssh keys setup to Ansible host
-#                   Clone template must have only 1 interface and configured as DHCP
+#   Dependencies:   
 #                   
 #######################################################################################
----
-#--------------------------------------------------------------------------------------
-#
-# Special Notes:
-#   + Do not have the VMWorkstation or Fusion UI open during execution it seems to
-#     creates file locks (.lck) that causes Ansible play to fail
-#
-#--------------------------------------------------------------------------------------
 
-#--------------------------------------------------------------------------------------
-#
-# General Tunable Section:
-#   Defines all variables that will be utilized across plays
-#
-#       vmware_rest_uri:            <vm workstation or fusion REST URI & Port>
-#       lab_admin_user:             <User name to test commands against hosts>
-#       rest_username:              <VMWare REST Interface username>
-#       rest_password:              <VMware REST interface password>
-#       wait_for_ip_sec:            <Number of seconds to wait for commands>
-#       wait_for_ip_retry:          <Number of retries of for commands>
-#
-#--------------------------------------------------------------------------------------
+operation:                        "{{ operation }}"
 
-#vmware_rest_uri:            "https://x.x.x.x:8697"
-#lab_admin_user:             "root"
-#rest_username:              "{{ rest_username }}"
-#rest_password:              "{{ rest_password }}"
-#wait_for_ip_sec:            10
-#wait_for_ip_retry:          10
+deployment:
+    - type:                       "{{ type }}" 
+      vms:
+        - name:                   "{{ name }}"
+          vm_os_template:         "{{ vm_os_template }}"
+          static_ip:              "{{ static_ip }}"
+          gateway:                "{{ gateway }}"
+          subnet:                 "{{ subnet }}"
+          dns:                    "{{ dns }}"
+          search_domain:          "{{ search_domain }}"
+          interface_name:         "{{ interface_name }}"
 
-#--------------------------------------------------------------------------------------
-#
-# deploy_vm_hosts: 
-#    Defines all the base values for VMs we want to create in our environment
-#
-#    - { 
-#        name:                   <hostname> 
-#        vm_os_template:         <existing vm template name>, 
-#        static_ip:              <ip address>, 
-#        gateway:                <gateway ip>, 
-#        subnet:                 <netmask>,
-#        dns:                    <dns ip>,
-#        search_domain:          <search domain ex. dns.mylab.com>
-#        interface_name:         ifcfg-ens33
-#      }
-#
-#--------------------------------------------------------------------------------------
-
-#deploy_vm_hosts:
-#    - { 
-#        name:                   devops-1, 
-#        vm_os_template:         centos7_template, 
-#        static_ip:              x.x.x.10, 
-#        gateway:                x.x.x.1, 
-#        subnet:                 255.255.255.0,
-#        dns:                    x.x.x.2,
-#        search_domain:         	dev.lab.us,
-#        interface_name:         ifcfg-ens33
-#      }
-#
-#    - { 
-#        name:                   devops-2, 
-#        vm_os_template:         ubuntu18_template, 
-#        static_ip:              x.x.x.11, 
-#        gateway:                x.x.x.1, 
-#        subnet:                 255.255.255.0,
-#        dns:                    x.x.x.2,
-#        search_domain:          dev.lab.us,
-#        interface_name:         ens33
-#      }
-
-
-#--------------------------------------------------------------------------------------
-#
-# COMING SOON
-# deploy_docker: 
-#    Defines all the base values for the deployment of docker on a host or hosts
-#   
-#    - { 
-#      }
-#
-#--------------------------------------------------------------------------------------
-
-#--------------------------------------------------------------------------------------
-#
-# COMING SOON
-# deploy_kubernetes: 
-#    Defines all the base values for the deployment of kubernetes on a host or hosts
-#   
-#    - { 
-#      }
-#
-#--------------------------------------------------------------------------------------
-
-#--------------------------------------------------------------------------------------
-#
-# COMING SOON
-# deploy_netapp: 
-#    Defines all the base values for creating our NetApp environment
-#   
-#    - { 
-#      }
-#
-#--------------------------------------------------------------------------------------
-
-
-vmware_rest_uri:            "https://192.168.1.151:8697"
-lab_admin_user:             "root"
-rest_username:              "{{ rest_username }}"
-rest_password:              "{{ rest_password }}"
-wait_for_ip_sec:            10
-wait_for_ip_retry:          10
-
-deploy_vm_hosts:
-    - { 
-        name:                   devops-1, 
-        vm_os_template:         centos7_template, 
-        static_ip:              192.168.1.161, 
-        gateway:                192.168.1.1, 
-        subnet:                 255.255.255.0,
-        dns:                    192.168.1.1,
-        search_domain:         	dev.lab.us,
-        interface_name:         ifcfg-ens33
-      }
-
-    - { 
-        name:                   devops-2, 
-        vm_os_template:         ubuntu18_template, 
-        static_ip:              192.168.1.162, 
-        gateway:                192.168.1.1, 
-        subnet:                 255.255.255.0,
-        dns:                    192.168.1.1,
-        search_domain:          dev.lab.us,
-        interface_name:         ens33
-      }
+          cluster_name:           "{{ cluster_name }}"
+          cluster_mgmt_ip:        "{{ cluster_mgmt_ip }}"
+          cluster_mgmt_netmask:   "{{ cluster_mgmt_netmask }}"
+          node_ips:               "{{ node_ips }}"

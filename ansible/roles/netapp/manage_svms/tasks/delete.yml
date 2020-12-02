@@ -1,0 +1,67 @@
+#######################################################################################
+#   
+#   Author      :   Mark Monterosso
+#   Date        :   20 Apr 20
+#   
+#   Description :  
+#                   
+#   Dependencies:   
+#                   
+#######################################################################################
+
+# Getting volume info
+- name:                         Gathering vServer Volume Information
+  na_ontap_info:
+    state:                      info
+    hostname:                   "{{ netapp_hostname }}"
+    username:                   "{{ netapp_username }}"
+    password:                   "{{ netapp_password }}"
+    gather_subset:              "volume_info"
+  register:                     ontap_info
+
+# Identifying volume types
+- set_fact:
+    vs_volumes:                "{{ vs_volumes    | default([]) + [item.key.split(':')[0]] if item.value.volume_state_attributes.is_vserver_root == 'false' else vs_volumes   | default([]) }}"
+     #root_vol:                  "{{ root_vol  | default([]) + [item.key.split(':')[0]] if item.value.volume_state_attributes.is_vserver_root == 'true' else root_vol  | default([]) }}"
+     # Need to also add in mirror volumes and do something with them possibly
+     #          "volume_mirror_attributes": {
+     #               "is_data_protection_mirror": "false",
+     #               "is_load_sharing_mirror": "false",
+     #               "is_move_mirror": "false",
+     #               "is_replica_volume": "false",
+     #               "is_snapmirror_source": "false",
+     #               "mirror_transfer_in_progress": "false",
+     #               "redirect_snapshot_id": "0"
+     #           }
+  loop:                         "{{ lookup('dict',ontap_info.ontap_info.volume_info) }}"
+  when:
+    -                           "vserver.name in item.key"
+ 
+- name:                         "Invoking Volume Management Tasks"
+  vars:
+    volume:   
+        operation:              delete
+        name:                   '{{ vs_volume }}'
+        vserver:                '{{ vserver.name }}'                         
+
+  include_role:
+    name:                       netapp/manage_volumes
+  loop:                         "{{ vs_volumes }}"
+  loop_control:
+    loop_var:                   vs_volume
+  when:                         vs_volumes is defined
+
+- name:                         "Invoking CIFS Management Tasks"      
+  vars:
+  include_role:
+    name:                       netapp/manage_cifs_protocol
+
+# Deleting SVM
+- name:                         "Deleting vServer: {{ vserver.name }}"
+  na_ontap_svm:
+    state:                      absent
+    name:                       "{{ vserver.name }}"
+    hostname:                   "{{ netapp_hostname }}"
+    username:                   "{{ netapp_username }}"
+    password:                   "{{ netapp_password }}"
+  register:                     svm_delete_output

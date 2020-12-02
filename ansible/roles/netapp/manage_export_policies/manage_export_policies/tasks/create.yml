@@ -1,0 +1,19 @@
+#######################################################################################
+#   
+#   Author      :   Mark Monterosso
+#   Date        :   20 Apr 20
+#   
+#   Description :  
+#                   
+#   Dependencies:   
+#                   
+#######################################################################################
+- name:                         Creating Export Policy
+  na_ontap_export_policy:
+    state:                      present
+    name:                       "{{ export_policy.name }}"
+    vserver:                    "{{ export_policy.vserver }}"
+    hostname:                   "{{ netapp_hostname }}"
+    username:                   "{{ netapp_username }}"
+    password:                   "{{ netapp_password }}"
+  register:                     export_policy_create_output

@@ -1,0 +1,170 @@
+#######################################################################################
+#   
+#   Author      :   Mark Monterosso
+#   Date        :   20 Apr 20
+#   
+#   Description :                 
+#   
+#   Dependencies:   
+#                   
+#######################################################################################
+---
+- hosts:                                localhost
+  name:                                 Workflow - Test
+  gather_facts:                         false
+ 
+  vars_files:
+    -                                    'vars/vars-common.yml' 
+    -                                    'vars-provision-na-svm.yml' 
+
+  vars:
+    vservers:
+      - name:                            "{{ svm_name }}"              
+        root_vol:                        "{{ vserver_root_vol }}"       
+        security_style:                  "{{ vserver_security_style }}"  
+        allowed_protocols:               "{{ vserver_allowed_protocols }}"   
+        operation:                       "{{ operation }}" 
+        ad_domain:                       "{{ ad_domain }}"
+        ad_ou:                           "{{ ad_ou }}" 
+        nameservers:                     "{{ nameservers }}"  
+                         
+    lifs:                                  
+      - name:                            "{{ lif_name }}"        
+        vserver:                         "{{ svm_name }}"         
+        address:                         "{{ lif_address }}"     
+        netmask:                         "{{ lif_netmask }}"      
+        protocols:                       "{{ lif_protocols }}"   
+        operation:                       "{{ operation }}"
+
+    export_policies: 
+      - operation:                       "{{ operation }}"
+        name:                            "{{ export_policy_name }}"      
+        vserver:                         "{{ svm_name }}"
+
+    export_policy_rules: 
+      - operation:                       "{{ operation }}"
+        name:                            "{{ export_policy_name }}"    
+        vserver:                         "{{ svm_name }}"
+        client_match:                    "{{ export_rule_client_match }}"
+        ro_rule:                         "{{ export_rule_ro }}"
+        rw_rule:                         "{{ export_rule_rw }}"
+        protocol:                        "{{ export_rule_protocol }}"
+        super_user_security:             "{{ export_rule_su_security }}"
+
+    volumes:
+      - operation:                       "{{ operation }}"
+        name:                            "{{ vol_name }}"
+        vserver:                         "{{ svm_name }}" 
+        aggregate:                       "{{ vol_aggr }}"
+        size:                            "{{ vol_size }}"
+        policy:                          "{{ export_policy_name }}"  
+      
+  tasks:   
+    - block:
+        # Build vServer
+        - name:                         "Invoking Vserver Management Tasks"
+          include_role:
+            name:                       netapp/manage_svms
+          loop:                         "{{ vservers }}"
+          loop_control:
+            loop_var:                   vserver
+          when:                         
+            -                           vservers is defined
+
+        - name:                         "Invoking LIF Management Tasks"
+          include_role:
+            name:                       netapp/manage_lifs
+          loop:                         "{{ lifs }}"
+          loop_control:
+            loop_var:                   lif
+          when:
+            -                           lifs is defined
+            -                           operation == 'create'
+
+#MOVE ME TO MANAGE NFS PROTOCOL ROLES
+        - name:                         Enabling NFS
+          na_ontap_nfs:
+            state:                      present
+            service_state:              started
+            vserver:                    "{{ svm_name }}" 
+            nfsv3:                      enabled
+            hostname:                   "{{ netapp_hostname }}"
+            username:                   "{{ netapp_username }}"
+            password:                   "{{ netapp_password }}"
+          when:
+            -                           export_policies is defined
+            -                           operation == 'create'
+
+#NEED TO ADD VARIABLES TO HANDLE ROOT VOLUME EXPORT POLICY (PUT IN ROLE)
+        - name:                         Changing Default Policy
+          na_ontap_export_policy_rule:
+            vserver:                   "{{ svm_name }}" 
+            state:                      present
+            name:                       default
+            rule_index:                 1
+            client_match:               0.0.0.0/0
+            ro_rule:                    any
+            rw_rule:                    any
+            protocol:                   any
+            allow_suid:                 yes
+            super_user_security:        any
+            hostname:                   "{{ netapp_hostname }}"
+            username:                   "{{ netapp_username }}"
+            password:                   "{{ netapp_password }}"
+          when:
+            -                           export_policies is defined
+            -                           operation == 'create'
+
+        - name:                         "Invoking Export Policy Management Tasks"      
+          include_role:
+            name:                       netapp/manage_export_policies
+          loop:                         "{{ export_policies }}"
+          loop_control:
+            loop_var:                   export_policy
+          when:
+            -                           export_policies is defined
+            -                           operation == 'create'
+
+        - name:                         "Invoking Export Policy Rule Management Tasks"      
+          include_role:
+            name:                       netapp/manage_export_policy_rules
+          loop:                         "{{ export_policy_rules }}"
+          loop_control:
+            loop_var:                   export_policy_rule
+          when:
+            -                           export_policy_rules is defined
+            -                           operation == 'create'
+   
+        - name:                         "Invoking CIFS Management Tasks"      
+          include_role:
+            name:                       netapp/manage_cifs_protocol
+          loop:                         "{{ vservers }}"
+          loop_control:
+            loop_var:                   vserver
+          when:
+            -                           vservers is defined
+            -                           "( vserver.allowed_protocols | lower ).find('cifs') != -1"
+            -                           operation == 'create'
+
+        - name:                         "Invoking Volume Management Tasks"
+          include_role:             
+            name:                       netapp/manage_volumes
+          loop:                         "{{ volumes }}"
+          loop_control:             
+            loop_var:                   volume
+          when:
+            -                           volumes is defined
+            -                           operation == 'create'
+
+      rescue: 
+        # Remove vServer on error
+        - name:                         "Invoking Vserver Management Tasks"
+          vars:
+            operation:                  delete
+          include_role:
+            name:                       netapp/manage_svms
+          loop:                         "{{ vservers }}"
+          loop_control:
+            loop_var:                   vserver
+          when:                         
+            -                           vservers is defined

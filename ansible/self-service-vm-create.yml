@@ -1,0 +1,35 @@
+#######################################################################################
+#   
+#   Author      :   Mark Monterosso
+#   Date        :   23 Mar 20
+#   
+#   Description :   The purpose of this code is to facilitate cloning of virtual
+#                   machines in VM Workstation
+#   
+#   Dependencies:   VM Workstation 15.x or Fusion 11
+#                   
+#######################################################################################
+
+#--------------------------------------------------------------------------------------
+#
+# Workflow:
+#   + Invoke role to create VM clones
+#   + Invoke role to apply base ONTAP configurations 
+#   + Invoke role to apply base LINUX configurations
+#
+#--------------------------------------------------------------------------------------
+---
+
+# Performing tasks to create clones in VM Workstation / Fusion
+- hosts:                                 localhost
+  name:                                  Creating and Powering on Virtual Environments
+  gather_facts:                          false
+
+  vars_files:
+    -                                    [ 'vars-provision-infra.yml' ]
+
+  tasks:
+    - name:                              "Creating Clones"
+      include_role:
+        name:                            vmware/create_vm_clones
+

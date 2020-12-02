@@ -1,0 +1,19 @@
+#######################################################################################
+#   
+#   Author      :   Mark Monterosso
+#   Date        :   20 Apr 20
+#   
+#   Description :  
+#                   
+#   Dependencies:   
+#                   
+#######################################################################################
+- name:                         Delete Logical Interface
+  na_ontap_interface:
+    state:                      absent
+    interface_name:             "{{ lif.name }}"
+    vserver:                    "{{ lif.vserver }}"
+    hostname:                   "{{ netapp_hostname }}"
+    username:                   "{{ netapp_username }}"
+    password:                   "{{ netapp_password }}"
+  register:                     lif_delete_output

@@ -1,0 +1,145 @@
+#######################################################################################
+#   
+#   Author      :   Mark Monterosso
+#   Date        :   09 Apr 20
+#   
+#   Description :   
+#                   
+#   
+#   Dependencies:   
+#                   
+#######################################################################################
+---
+
+- name: Setup licenses
+  na_ontap_license:
+    state: present
+    license_codes: '{{ licenses }}'
+    hostname: '{{ netapp_hostname }}'
+    username: '{{ netapp_username }}'
+    password: '{{ netapp_password }}'
+    https: true
+    validate_certs: false
+
+- name: Create Aggregates
+  na_ontap_aggregate:
+    state: present
+    service_state: online
+    name: '{{ item.name }}'
+    nodes: '{{ item.node }}'
+    disk_count: '{{ item.disk_count }}'
+    raid_size: '{{ item.max_raid }}'
+    hostname: '{{ netapp_hostname }}'
+    username: '{{ netapp_username }}'
+    password: '{{ netapp_password }}'
+    https: true
+    validate_certs: false
+  with_items: '{{ aggregates }}'
+  when: aggregates is defined and aggregates != None
+
+- name: Create NTP server
+  na_ontap_ntp:
+    state: present
+    server_name: "{{ item.server }}"
+    hostname: "{{ netapp_hostname }}"
+    username: "{{ netapp_username }}"
+    password: "{{ netapp_password }}"
+    https: true
+    validate_certs: false
+  with_items: '{{ ntp }}'
+  when: ntp is defined and ntp != None
+
+- name: Remove ports from Default broadcast domain
+  na_ontap_broadcast_domain_ports:
+    state: absent
+    broadcast_domain: Default
+    ports: '{{ item.node }}:{{ item.port }}'
+    hostname: '{{ netapp_hostname }}'
+    username: '{{ netapp_username }}'
+    password: '{{ netapp_password }}'
+    https: true
+    validate_certs: false
+  with_items: '{{ ports }}'
+  when: ports is defined and ports != None
+
+- name: Modify Net Port MTU
+  na_ontap_net_port:
+    state: present
+    node: '{{ item.node }}'
+    port: '{{ item.port }}'
+    mtu: '{{ item.mtu }}'
+    autonegotiate_admin: '{{ autonegotiate }}'
+    flowcontrol_admin: '{{ flowcontrol }}'
+    hostname: '{{ netapp_hostname }}'
+    username: '{{ netapp_username }}'
+    password: '{{ netapp_password }}'
+    https: true
+    validate_certs: false
+  with_items: '{{ ports }}'
+  when: ports is defined and ports != None
+
+- name: Create Interface Group
+  na_ontap_net_ifgrp:
+    state: present
+    distribution_function: '{{ distribution_function }}'
+    name: '{{ item.name }}'
+    ports: '{{ item.ports }}'
+    mode: '{{ item.mode if item.mode is defined else ifgrp_mode }}'
+    node: '{{ item.node}}'
+    hostname: '{{ netapp_hostname }}'
+    username: '{{ netapp_username }}'
+    password: '{{ netapp_password }}'
+    https: true
+    validate_certs: false
+  with_items: '{{ interface_groups  }}'
+  when: interface_groups is defined and interface_groups != None
+  register: ifgrpstatus
+
+- name: Modify Interface Group MTU
+  na_ontap_net_port:
+    state: present
+    node: '{{ ifgrp_port.node }}'
+    port: '{{ ifgrp_port.name }}'
+    mtu: '{{ ifgrp_port.mtu }}'
+    hostname: '{{ netapp_hostname }}'
+    username: '{{ netapp_username }}'
+    password: '{{ netapp_password }}'
+    https: true
+    validate_certs: false
+  with_items: '{{ interface_groups }}'
+  loop_control:
+    loop_var: ifgrp_port
+  when: interface_groups is defined and interface_groups != None
+  register: ifgrpportstatus
+- name: Wait 30 seconds for IFGRP configuration
+  pause:
+    seconds: 30
+  when: ifgrpstatus.changed or ifgrpportstatus.changed
+
+- name: Create broadcast domain
+  na_ontap_broadcast_domain:
+    state: present
+    broadcast_domain: '{{ item.name }}'
+    mtu: '{{ item.mtu }}'
+    ipspace: '{{ bcast_ipspace }}'
+    ports: '{{ item.ports }}'
+    hostname: '{{ netapp_hostname }}'
+    username: '{{ netapp_username }}'
+    password: '{{ netapp_password }}'
+    https: true
+    validate_certs: false
+  with_items: '{{ broadcast_domains }}'
+  when: broadcast_domains is defined and broadcast_domains != None
+
+- name: Add ports to Broadcast Domain
+  na_ontap_broadcast_domain_ports:
+    state: present
+    hostname: '{{ netapp_hostname }}'
+    username: '{{ netapp_username }}'
+    password: '{{ netapp_password }}'
+    https: true
+    validate_certs: false
+    broadcast_domain: '{{ item.name }}'
+    ports: '{{ item.ports }}'
+  with_items: '{{ broadcast_domains }}'
+  when: broadcast_domains is defined and broadcast_domains != None

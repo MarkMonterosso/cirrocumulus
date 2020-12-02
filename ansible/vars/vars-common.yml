@@ -1,0 +1,33 @@
+#######################################################################################
+#   
+#   Author      :   Mark Monterosso
+#   Date        :   20 Apr 20
+#   
+#   Description :   
+#                   
+#   
+#   Dependencies:   
+#                   
+#                   
+#                   
+#                   
+#######################################################################################
+# Workstation / Fusion REST Creds
+vmware_rest_uri:                  "https://192.168.1.20:8697"
+rest_username:                    "{{ rest_username }}"
+rest_password:                    "{{ rest_password }}"
+
+# NetApp Creds
+netapp_username:                  "{{ na_username }}"
+netapp_password:                  "{{ na_password }}"
+
+# NetApp Creds
+ad_username:                      "{{ lab_win_user }}"
+ad_password:                      "{{ lab_win_pass }}"
+
+# Linux Host Creds
+lab_admin_user:                   "root"
+
+# General Variables
+wait_secs:                        35
+wait_retry:                       15

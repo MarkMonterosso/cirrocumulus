@@ -49,12 +49,22 @@ The following sections must be already installed in your environment.
   - [ ] Download and install AWX
   - [ ] Purchase and install Ansible Tower
 - [ ] Repository Usage
- - [ ] It is recommended that you clone the contents of this repository into your own to avoid unexpected behavior due to future updates
+  - [ ] It is recommended that you clone the contents of this repository into your own to avoid unexpected behavior due to future updates
     ```
     git clone https://github.com/MarkMonterosso/cirrocumulus.git    
     ```  
- - [ ] If you are using Tower or AWX it is recommended to create a project (<a href="https://github.com/MarkMonterosso/vm-deployment/blob/dev/TOWER_AWX.md">Setup Guide</a>)
- - [ ] If you are using Ansible core, simply clone the repository and place it somewhere logical on your Ansible host
+  - [ ] If you are using Tower or AWX it is recommended to create a project (<a href="https://github.com/MarkMonterosso/vm-deployment/blob/dev/TOWER_AWX.md">Setup Guide</a>)
+  - [ ] If you are using Ansible core, simply clone the repository and place it somewhere logical on your Ansible host
+- [ ] Make sure the following packages on your ansible host
+  ```
+    requests 
+    json 
+    sys 
+    argparse
+    traceback
+    time
+    netaddr
+  ```
   
 ## Usage
 __Ansible Core__

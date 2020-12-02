@@ -1,0 +1,33 @@
+#######################################################################################
+#   
+#   Author      :   Mark Monterosso
+#   Date        :   20 Apr 20
+#   
+#   Description :  
+#                   
+#   Dependencies:   
+#                   
+#######################################################################################
+- name:                         Creating Logical Interface (LIF)
+  na_ontap_interface:
+    state:                      present
+    vserver:                    "{{ lif.vserver }}" 
+    interface_name:             "{{ lif.name }}"
+    address:                    "{{ lif.address }}"     
+    netmask:                    "{{ lif.netmask }}"     
+    home_port:                  "{{ lif.homeport                | default('e0a') }}" 
+    home_node:                  "{{ lif.homenode                | default(omit) }}"    
+    role:                       "{{ lif.role                    | default('data') }}"    
+    protocols:                  "{{ lif.protocols               | default('nfs,cifs') }}"   
+    admin_status:               "{{ lif.status                  | default('up') }}"    
+    failover_policy:            "{{ lif.failover_policy         | default('local-only') }}"     
+    firewall_policy:            "{{ lif.firewall_policy         | default('data') }}"     
+    is_auto_revert:             "{{ lif.auto_revert             | default(omit) }}"     
+    force_subnet_association :  "{{ lif.force_subnet_assoc      | default(omit) }}"
+    dns_domain_name:            "{{ lif.dns_domain              | default(omit) }}"
+    listen_for_dns_query:       "{{ lif.listen_for_dns_query    | default(omit) }}"
+    is_dns_update_enable:       "{{ lif.dns_update_enable       | default(omit) }}" 
+    hostname:                   "{{ netapp_hostname }}"
+    username:                   "{{ netapp_username }}"
+    password:                   "{{ netapp_password }}"
+  register:                     lif_create_output

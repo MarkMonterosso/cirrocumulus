@@ -1,0 +1,19 @@
+#######################################################################################
+#   
+#   Author      :   Mark Monterosso
+#   Date        :   20 Apr 20
+#   
+#   Description :  
+#                   
+#   Dependencies:   
+#                   
+#######################################################################################
+- name: Disable NFS Protocol
+  na_ontap_nfs:
+    state:                          present
+    service_state:                  stopped
+    vserver:                        "{{ vserver }}"
+    hostname:                       "{{ netapp_hostname }}"
+    username:                       "{{ netapp_username }}"
+    password:                       "{{ netapp_password }}"
+  register:                         nfs_delete_output

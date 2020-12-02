@@ -1,0 +1,26 @@
+#######################################################################################
+#   
+#   Author      :   Mark Monterosso
+#   Date        :   20 Apr 20
+#   
+#   Description :  
+#                   
+#   Dependencies:   
+#                   
+#######################################################################################
+- name:                             "Creating Export Policy Rule: {{ export_policy_rule.name }}"
+  na_ontap_export_policy_rule:
+    state:                          present
+    name:                           "{{ export_policy_rule.name }}"
+    vserver:                        "{{ export_policy_rule.vserver }}"
+    client_match:                   "{{ export_policy_rule.client_match }}"
+    rule_index:                     "{{ export_policy_rule.index                    | default(omit) }}"
+    ro_rule:                        "{{ export_policy_rule.ro_rule                  | default('none') }}"
+    rw_rule:                        "{{ export_policy_rule.rw_rule                  | default('none')  }}"
+    protocol:                       "{{ export_policy_rule.protocol                 | default('any') }}"
+    super_user_security:            "{{ export_policy_rule.super_user_security      | default('none') }}"
+    allow_suid:                     "{{ export_policy_rule.allow_suid               | default('yes') }}"
+    hostname:                       "{{ netapp_hostname }}"
+    username:                       "{{ netapp_username }}"
+    password:                       "{{ netapp_password }}"
+  register:                         export_policy_rule_create_output

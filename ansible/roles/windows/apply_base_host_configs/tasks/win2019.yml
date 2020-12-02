@@ -1,0 +1,40 @@
+#######################################################################################
+#   
+#   Author      :   Mark Monterosso
+#   Date        :   23 Mar 20
+#   
+#   Description :   Role to support infrastructure provisioning in VM Workstation
+#                   Execute tasks specific to Windows 2019 implementations    
+#   
+#   Dependencies:   Functional and accessible Windows 2019 system
+#                   
+#######################################################################################
+
+#--------------------------------------------------------------------------------------
+#
+# Workflow:
+#
+#--------------------------------------------------------------------------------------
+---
+
+- name:                 Converting Netmask to CIDR Notation
+  set_fact:
+    netmask:            ["{{ (host_info.static_ip + '/' + host_info.subnet ) | ipaddr('host/prefix') }}"]
+
+- name:                 Set up static IP address
+  win_command:            "Get-NetIpAddress -InterfaceAlias 'Ethernet' | New-NetIpAddress -IpAddress {{ host_info.static_ip }} -PrefixLength {{ netmask }} -DefaultGateway {{ host_info.gateway }}"
+  async:                300 
+  poll:                 0
+
+- name:                 Setting Ansible Host
+  set_fact:
+    ansible_host:       "{{ host_info.static_ip }}"
+
+- name:                 Waiting for Windows Host IP Change to Complete
+  local_action:
+    module:             wait_for
+    host:               "{{ ansible_host }}"
+    port:               5985
+    delay:              10
+    state:              started
+  register:             wait_result

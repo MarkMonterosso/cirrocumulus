@@ -32,6 +32,14 @@
     name:           '*'
     state:          latest
 
+# Need to put packages in a config/variable file
+- name:             "Installing Packages"
+  yum:
+    name:
+      -             nfs-utils
+    state:          latest
+
+
 # Stop Network Manager to Disable it
 - name:             Stop Network Manager
   command:          systemctl stop NetworkManager
@@ -41,16 +49,15 @@
   command:          systemctl disable NetworkManager
 
 # Set the Hostname
-- name:             "Setting Hostname to {{ item.name }}" 
+- name:             "Setting Hostname to {{ host_info.name }}" 
   hostname:
-    name:           "{{ item.name }}"
-    use:            "{{ ansible_os_family | lower }}"
+    name:           "{{ host_info.name }}"
 
 # Update the ifcfg-<interface> File From a Template (Make IP Static)
 - name:             "Updating Interface Settings"
   template:
     src:            ./redhat/interface_template
-    dest:           "/etc/sysconfig/network-scripts/{{ item.interface_name }}"
+    dest:           "/etc/sysconfig/network-scripts/{{ host_info.interface_name }}"
     owner:          root
     group:          root
     mode:           '0644'
@@ -74,7 +81,7 @@
     mode:           '0644'
 
 # Reboot Host to Apply Changes
-- name:             "Rebooting {{ item.name }}"
+- name:             "Rebooting {{ host_info.name }}"
   shell:            sleep 5 && shutdown -r now "Reboot triggered by Ansible script"
   async:            1
   poll:             0

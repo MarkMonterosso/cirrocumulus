@@ -1,0 +1,93 @@
+#######################################################################################
+#   
+#   Author      :   Mark Monterosso
+#   Date        :   20 Apr 20
+#   
+#   Description :                 
+#   
+#   Dependencies:   
+#                   
+#######################################################################################
+---
+- hosts:                                localhost
+  name:                                 Workflow Create File Share
+  gather_facts:                         false
+ 
+  vars_files:
+    -                                    'vars/vars-common.yml' 
+    -                                    'vars-provision-na-svm.yml' 
+
+  vars:
+    cifs_shares:
+      - operation:                       "{{ operation }}"
+        share_name:                      "{{ share_name }}"
+        path:                            "/{{share_name}}"
+        vserver:                         "{{ svm_name }}"
+        share_properties:                "{{ share_properties }}"
+        symlink_properties:              "{{ symlink_properties }}"
+
+    export_policies: 
+      - operation:                       "{{ operation }}"
+        name:                            "{{ share_name }}"
+        vserver:                         "{{ svm_name }}"
+ 
+    export_policy_rules: 
+      - operation:                       "{{ operation }}"
+        name:                            "{{ share_name }}" 
+        vserver:                         "{{ svm_name }}"
+        client_match:                    "{{ export_rule_client_match }}"
+        ro_rule:                         "{{ export_rule_ro }}"
+        rw_rule:                         "{{ export_rule_rw }}"
+        protocol:                        "{{ export_rule_protocol }}"
+        super_user_security:             "{{ export_rule_su_security }}"
+
+    volumes:
+      - operation:                       "{{ operation }}"
+        name:                            "{{ share_name }}"
+        vserver:                         "{{ svm_name }}" 
+        aggregate:                       "{{ vol_aggr }}"
+        size:                            "{{ vol_size }}"
+        policy:                          "{{ share_name }}" 
+        security_style:                  "unix" 
+
+  tasks:   
+    - block:
+        - name:                         "Invoking Export Policy Management Tasks"      
+          include_role:
+            name:                       netapp/manage_export_policies
+          loop:                         "{{ export_policies }}"
+          loop_control:
+            loop_var:                   export_policy
+          when:
+            -                           export_policies is defined
+            -                           operation == 'create'
+
+        - name:                         "Invoking Export Policy Rule Management Tasks"      
+          include_role:
+            name:                       netapp/manage_export_policy_rules
+          loop:                         "{{ export_policy_rules }}"
+          loop_control:
+            loop_var:                   export_policy_rule
+          when:
+            -                           export_policy_rules is defined
+            -                           operation == 'create'
+   
+        - name:                         "Invoking Volume Management Tasks"
+          include_role:             
+            name:                       netapp/manage_volumes
+          loop:                         "{{ volumes }}"
+          loop_control:             
+            loop_var:                   volume
+          when:
+            -                           volumes is defined
+            -                           operation == 'create'
+
+        - name:                         "Invoking CIFS Share Management Tasks"
+          include_role:             
+            name:                       netapp/manage_cifs_shares
+          loop:                         "{{ cifs_shares }}"
+          loop_control:             
+            loop_var:                   cifs_share
+          when:
+            -                           cifs_shares is defined
+            -                           operation == 'create'

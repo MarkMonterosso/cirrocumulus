@@ -1,0 +1,20 @@
+#######################################################################################
+#   
+#   Author      :   Mark Monterosso
+#   Date        :   20 Apr 20
+#   
+#   Description :  
+#                   
+#   Dependencies:   
+#                   
+#######################################################################################
+- name:                         "Deleting Volume: {{ volume.name }}"
+  na_ontap_volume:
+    state:                      absent
+    vserver:                    "{{ volume.vserver }}"
+    name:                       "{{ volume.name }}"  
+    junction_path:              ''
+    hostname:                   "{{ netapp_hostname }}"
+    username:                   "{{ netapp_username }}"
+    password:                   "{{ netapp_password }}"
+  register:                     vol_delete_output

@@ -1,0 +1,15 @@
+#######################################################################################
+#   
+#   Author      :   Mark Monterosso
+#   Date        :   23 Mar 20
+#   
+#   Description :   Role to support infrastructure provisioning in VM Workstation
+#                   Deterimes the correct playbook to execute based on OS family
+#   
+#   Dependencies:   
+#                   
+#######################################################################################
+---
+
+- debug:
+    msg: "{{ test }}"

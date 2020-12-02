@@ -1,0 +1,23 @@
+#######################################################################################
+#   
+#   Author      :   Mark Monterosso
+#   Date        :   29 Apr 20
+#   
+#   Description :  
+#                   
+#   Dependencies:   
+#                   
+#######################################################################################
+
+#The DNS block needs to be moved into it's own set of roles
+- name:                         Create CIFS share
+  na_ontap_cifs:
+    state:                      present
+    share_name:                 "{{ cifs_share.share_name}}"
+    path:                       "{{ cifs_share.share_path                       | default('/' + cifs_share.share_name)}}"
+    vserver:                    "{{ cifs_share.vserver }}"
+    share_properties:           "{{ cifs_share.share_properties }}"
+    symlink_properties:         "{{ cifs_share.symlink_properties }}"
+    hostname:                   "{{ netapp_hostname }}"
+    username:                   "{{ netapp_username }}"
+    password:                   "{{ netapp_password }}"

@@ -1,0 +1,27 @@
+#######################################################################################
+#   
+#   Author      :   Mark Monterosso
+#   Date        :   20 Apr 20
+#   
+#   Description :  
+#                   
+#   Dependencies:   
+#                   
+#######################################################################################
+- name:                         "Creating vServer: {{ vserver.name }}"
+  na_ontap_svm:
+    state:                      present
+    name:                       "{{ vserver.name }}"
+    root_volume:                "{{ vserver.root_vol             | default(vserver.name + '_vol0') }}" 
+    root_volume_aggregate:      "{{ vserver.root_aggregate       | default(omit) }}" 
+    root_volume_security_style: "{{ vserver.security_style       | default('unix') }}"
+    allowed_protocols:          "{{ vserver.allowed_protocols    | default('nfs,cifs') }}"
+    aggr_list:                  "{{ vserver.aggr_list            | default(omit) }}"
+    ipspace:                    "{{ vserver.ipspace              | default('Default') }}"
+    language:                   "{{ vserver.language             | default('C.UTF-8') }}"
+    snapshot_policy:            "{{ vserver.snapshot_policy      | default(omit) }}"
+    subtype:                    "{{ vserver.subtype              | default('default') }}"
+    hostname:                   "{{ netapp_hostname }}"
+    username:                   "{{ netapp_username }}"
+    password:                   "{{ netapp_password }}"
+  register:                     svm_create_output

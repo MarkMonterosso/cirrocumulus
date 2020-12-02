@@ -1,0 +1,18 @@
+#######################################################################################
+#   
+#   Author      :   Mark Monterosso
+#   Date        :   29 Apr 20
+#   
+#   Description :  NOT FINISHED NEEDS TESTING
+#                   
+#   Dependencies:   
+#                   
+#######################################################################################
+- name:                     "Deleting Cifs Server on {{ vserver.name }}"
+  na_ontap_cifs_server:
+    state:                  absent
+    name:                   "test"
+    vserver:                "{{ vserver.name }}"
+    hostname:               "{{ netapp_hostname }}"
+    username:               "{{ netapp_username }}"
+    password:               "{{ netapp_password }}"

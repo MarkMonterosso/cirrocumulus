@@ -1,0 +1,286 @@
+#######################################################################################
+#   
+#   Author      :   Mark Monterosso
+#   Date        :   09 Apr 20
+#   
+#   Description :   Tasks supporting the ONTAP day zero role
+#                   
+#   Dependencies:   
+#                   
+#######################################################################################
+
+#--------------------------------------------------------------------------------------
+#
+# Workflow:
+#   + Locate the cluster management lif 
+#   + Get node count
+#   + Get user specified IP count
+#   + Validate the user provided enough node IPs
+#   + Setup cluster licenses
+#   + Create aggregates
+#   + Create NTP server
+#   + Adjust broadcast domain ports
+#   + Modify port MTU sizes
+#   + Create interface groups
+#   + Adjust interface group MTU size
+#   + Create new broadcast domains
+#   + Add ports into new broadcast domains
+#   + Change cluster management lif IP
+#   + Change all node IPs
+#
+#--------------------------------------------------------------------------------------
+---
+
+# Locate the Cluster Management LIF
+- name:                     Find cluster management lif
+  na_ontap_info:
+    hostname:               "{{ netapp_hostname }}"
+    username:               "{{ netapp_username }}"
+    password:               "{{ netapp_password }}"
+    state:                  info
+    gather_subset:          net_interface_info
+  register:                 net_interface_info_output
+
+- set_fact:
+    cluster_mgmt_lif:       "{{ lif.interface_name }}"
+    cluster_vserver:        "{{lif.vserver}}"
+  loop:                     "{{ net_interface_info_output.ontap_info.net_interface_info.values() | list }}"    
+  loop_control:
+    loop_var:               lif   
+  when:                     lif.role == 'cluster_mgmt'  
+
+# Get Number of Nodes Managment LIFs in the Cluster
+- name:                     Counting Node Mgmt LIFs
+  set_fact:
+    node_lifs:              "{{ node_lifs | default([]) + [node_lif.interface_name] }}"
+  loop:                     "{{ net_interface_info_output.ontap_info.net_interface_info.values() | list }}"
+  loop_control:
+    loop_var:               node_lif
+  when:                     node_lif.role =='node_mgmt'
+
+- name:                     Counting user provided node IPs
+  set_fact:
+    node_lif_count:        "{{ node_lifs | length }}"
+
+# Get the Number of User Specified IPs
+
+- set_fact:
+    node_ip_list:           "{{ cluster_info.node_ips.split(',') }}"
+  when:                     cluster_info.node_ips is defined
+
+- name:                     Counting user provided node IPs
+  set_fact:
+    node_ip_count:          "{{ node_ip_list | length }}"
+   
+# Fail if not Enough Node IPs Specified
+- name:                     Validating user specified enough node IPs (Skipping of OK)
+  fail:                     
+    msg:                    "You have not provided enough IPs for the number of nodes"
+  when:                     node_ip_count != node_lif_count
+  
+# Add Cluster Licenses
+- name:                     Setup licenses
+  na_ontap_license:
+    state:                  present
+    license_codes:          "{{ licenses }}"
+    hostname:               "{{ netapp_hostname }}"
+    username:               "{{ netapp_username }}"
+    password:               "{{ netapp_password }}"
+    https:                  true
+    validate_certs:         false
+
+# Create Aggregates
+- name:                     Create Aggregates
+  na_ontap_aggregate:
+    state:                  present
+    service_state:          online
+    name:                   "{{ aggr.name }}"
+    nodes:                  "{{ aggr.node }}"
+    disk_count:             "{{ aggr.disk_count }}"
+    raid_size:              "{{ aggr.max_raid }}"
+    hostname:               "{{ netapp_hostname }}"
+    username:               "{{ netapp_username }}"
+    password:               "{{ netapp_password }}"
+    https:                  true
+    validate_certs:         false
+  loop:                     "{{ aggregates }}"
+  loop_control:
+    loop_var:               aggr
+  when:                     aggregates is defined and aggregates != None
+
+# Add NTP Servers
+- name:                     Create NTP server
+  na_ontap_ntp:             
+    state:                  present
+    server_name:            "{{ time.server }}"
+    hostname:               "{{ netapp_hostname }}"
+    username:               "{{ netapp_username }}"
+    password:               "{{ netapp_password }}"
+    https:                  true
+    validate_certs:         false
+  loop:                     "{{ ntp }}"
+  loop_control:
+    loop_var:               time
+  when:                     ntp is defined and ntp != None
+
+# Remove Ports from Broadcast Domain
+- name:                     Remove ports from Default broadcast domain
+  na_ontap_broadcast_domain_ports:
+    state:                  absent
+    broadcast_domain:       Default
+    ports:                  "{{ broadcast_domain.node }}:{{ broadcast_domain.port }}"
+    hostname:               "{{ netapp_hostname }}"
+    username:               "{{ netapp_username }}"
+    password:               "{{ netapp_password }}"
+    https:                  true
+    validate_certs:         false
+  loop:                     "{{ ports }}"
+  loop_control:
+    loop_var:               broadcast_domain
+  when:                     ports is defined and ports != None
+
+# Modify Port MTU Sizes
+- name:                     Modify Net Port MTU
+  na_ontap_net_port:
+    state:                  present
+    node:                   "{{ port.node }}"
+    port:                   "{{ port.port }}"
+    mtu:                    "{{ port.mtu }}"
+    hostname:               "{{ netapp_hostname }}"
+    username:               "{{ netapp_username }}"
+    password:               "{{ netapp_password }}"
+    https:                  true
+    validate_certs:         false
+  loop:                     "{{ ports }}"
+  loop_control:
+    loop_var:               port
+  when:                     ports is defined and ports != None
+
+# Create an Interface Group
+- name:                     Create Interface Group
+  na_ontap_net_ifgrp:
+    state:                  present
+    distribution_function:  "{{ ifgrp.distribution_function }}"
+    name:                   "{{ ifgrp.name }}"
+    ports:                  "{{ ifgrp.ports }}"
+    mode:                   "{{ ifgrp.mode }}"
+    node:                   "{{ ifgrp.node}}"
+    hostname:               "{{ netapp_hostname }}"
+    username:               "{{ netapp_username }}"
+    password:               "{{ netapp_password }}"
+    https:                  true
+    validate_certs:         false
+  loop:                     "{{ interface_groups  }}"
+  loop_control:
+    loop_var:               ifgrp
+  when:                     interface_groups is defined and interface_groups != None
+  register:                 ifgrpstatus
+
+# Modify the Interface Group MTU Sizes
+- name:                     Modify Interface Group MTU
+  na_ontap_net_port:
+    state:                  present
+    node:                   "{{ ifgrp_port.node }}"
+    port:                   "{{ ifgrp_port.name }}"
+    mtu:                    "{{ ifgrp_port.mtu }}"
+    hostname:               "{{ netapp_hostname }}"
+    username:               "{{ netapp_username }}"
+    password:               "{{ netapp_password }}"
+    https:                  true
+    validate_certs:         false
+  loop:                     "{{ interface_groups }}"
+  loop_control:
+    loop_var:               ifgrp_port
+  when:                     interface_groups is defined and interface_groups != None
+  register:                 ifgrpportstatus
+
+- name:                     Wait 30 seconds for IFGRP configuration
+  pause:
+    seconds:                30
+  when:                     ifgrpstatus.changed or ifgrpportstatus.changed
+
+# Create a New Broadcast Domain
+- name:                     Create broadcast domain
+  na_ontap_broadcast_domain:
+    state:                  present
+    broadcast_domain:       "{{ new_bd.name }}"
+    mtu:                    "{{ new_bd.mtu }}"
+    ipspace:                "{{ new_bd.ipspace }}"
+    ports:                  "{{ new_bd.ports }}"
+    hostname:               "{{ netapp_hostname }}"
+    username:               "{{ netapp_username }}"
+    password:               "{{ netapp_password }}"
+    https:                  true
+    validate_certs:         false
+  loop:                     "{{ broadcast_domains }}"
+  loop_control:
+    loop_var:               new_bd
+  when:                     broadcast_domains is defined and broadcast_domains != None
+
+# Add Ports to the New Broadcast Domain
+- name:                     Add ports to Broadcast Domain
+  na_ontap_broadcast_domain_ports:
+    state:                  present
+    hostname:               "{{ netapp_hostname }}"
+    username:               "{{ netapp_username }}"
+    password:               "{{ netapp_password }}"
+    https:                  true
+    validate_certs:         false
+    broadcast_domain:       "{{ update_bd.name }}"
+    ports:                  "{{ update_bd.ports }}"
+  loop:                     "{{ broadcast_domains }}"
+  loop_control:
+    loop_var:               update_bd
+  when:                     broadcast_domains is defined and broadcast_domains != None
+
+    #-----------------------
+    # FEATURE REQ: Discover the cluster management lif
+    # MAM 14 Apr 20
+    # FEATURE ADDED: 
+    # MAM 15 Apr 20
+    #-----------------------
+
+# Change the Cluster Management IP
+- name:                     Modify the cluster management IP
+  na_ontap_interface:
+    state:                  present
+    interface_name:         "{{ cluster_mgmt_lif }}"
+    address:                "{{ cluster_info.cluster_mgmt_ip }}"
+    netmask:                "{{ cluster_info.cluster_mgmt_netmask }}"
+    vserver:                "{{ cluster_vserver }}"
+    hostname:               "{{ netapp_hostname }}"
+    username:               "{{ netapp_username }}"
+    password:               "{{ netapp_password }}"
+  ignore_errors:            true
+  poll:                     0
+
+#-----------------------
+# FEATURE REQ: Add IP change check
+# 16 Apr 20
+#-----------------------
+
+# Change the Node IPs
+- set_fact:
+    node_netmask:           "{{ cluster_info.cluster_mgmt_netmask }}"
+    new_cluster_ip:         "{{ cluster_info.cluster_mgmt_ip }}"
+
+- name:                     Modify the node management IP
+  na_ontap_interface:
+    state:                  present
+    interface_name:         "{{ node_interface[1] }}"
+    address:                "{{ node_interface[0] }}"
+    netmask:                "{{ node_netmask }}"
+    vserver:                "{{ cluster_vserver }}"
+    hostname:               "{{ new_cluster_ip }}"
+    username:               "{{ netapp_username }}"
+    password:               "{{ netapp_password }}"
+  loop:                     "{{ node_ip_list | zip(node_lifs | list) | list }}"
+  loop_control:
+    loop_var:               node_interface
+  ignore_errors:            true
+  poll:                     0
+
+#-----------------------
+# FEATURE REQ: Add IP change check
+# 16 Apr 20
+#-----------------------

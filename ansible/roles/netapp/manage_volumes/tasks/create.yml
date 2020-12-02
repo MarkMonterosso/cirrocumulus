@@ -1,0 +1,37 @@
+#######################################################################################
+#   
+#   Author      :   Mark Monterosso
+#   Date        :   20 Apr 20
+#   
+#   Description :  
+#                   
+#   Dependencies:   
+#                   
+#######################################################################################
+- name:                         Creating Volume
+  na_ontap_volume:
+    state:                      present
+    vserver:                    "{{ volume.vserver }}"
+    name:                       "{{ volume.name }}"  
+    aggregate_name:             "{{ volume.aggregate }}"
+    size:                       "{{ volume.size }}"              
+    is_infinite:                "{{ volume.is_infinite               | default('no') }}"       
+    size_unit:                  "{{ volume.size_unit                 | default('gb') }}"
+    space_guarantee:            "{{ volume.space_guarantee           | default('none') }}"
+    tiering_policy:             "{{ volume.tiering_policy            | default('none') }}"
+    policy:                     "{{ volume.export_policy             | default(omit) }}"
+    percent_snapshot_space:     "{{ volume.percent_snapshot_space    | default('0') }}"
+    qos_policy_group:           "{{ volume.qos_policy_group          | default(omit) }}"
+    wait_for_completion:        "{{ volume.wait_for_completion       | default('no') }}"
+    space_slo:                  "{{ volume.space_slo                 | default(omit) }}"
+    nvfail_enabled:             "{{ volume.nvfail_enabed             | default(omit) }}"
+    vserver_dr_protection:      "{{ volume.vserver_dr_protection     | default(omit) }}"
+    comment:                    "{{ volume.comment                   | default('Created by Ansible') }}"
+    snapdir_access:             "{{ volume.snapdir_access            | default('no') }}"
+    junction_path:              "{{ volume.junction_path             | default('/' + volume.name ) }}"
+    atime_update:               "{{ volume.atime_update              | default('yes') }}"
+    volume_security_style:      "{{ volume.security_style            | default('unix') }}"    
+    hostname:                   "{{ netapp_hostname }}"
+    username:                   "{{ netapp_username }}"
+    password:                   "{{ netapp_password }}"
+  register:                     vol_create_output

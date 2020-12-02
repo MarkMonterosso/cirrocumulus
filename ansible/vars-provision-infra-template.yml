@@ -1,0 +1,122 @@
+#######################################################################################
+#   
+#   Author      :   Mark Monterosso
+#   Date        :   23 Mar 20
+#   
+#   Description :   The purpose of this code is to facilitate cloning of virtual
+#                   machines in VM Workstation
+#   
+#   Dependencies:   VM Workstation 15.x or Fusion 11
+#                   Custom python module - vm_get_facts
+#                   Clone templates mush have ssh keys setup to Ansible host
+#                   Clone template must have only 1 interface and configured as DHCP
+#                   
+#######################################################################################
+
+#--------------------------------------------------------------------------------------
+#
+# Special Notes:
+#   + Do not have the VMWorkstation or Fusion UI open during execution it seems to
+#     creates file locks (.lck) that causes Ansible play to fail
+#
+#--------------------------------------------------------------------------------------
+
+#--------------------------------------------------------------------------------------
+#
+# General Tunable Section:
+#   Defines all variables that will be utilized across plays
+#
+#       vmware_rest_uri:            <vm workstation or fusion REST URI & Port>
+#       lab_admin_user:             <Username to test commands against hosts>
+#       rest_username:              <VMWare REST Interface username>
+#       rest_password:              <VMware REST interface password>
+#       wait_for_ip_sec:            <Number of seconds to wait for commands>
+#       wait_for_ip_retry:          <Number of retries of for commands>
+#       netapp_username:            <ONTAP username>
+#       netapp_password:            <ONTAP password>
+#
+#--------------------------------------------------------------------------------------
+---
+
+## Workstation / Fusion REST Creds
+# vmware_rest_uri:            "https://10.0.0.250:8697"
+# rest_username:              "{{ rest_username }}"
+# rest_password:              "{{ rest_password }}"
+
+## NetApp Creds
+# netapp_username:            "{{ na_username }}"
+# netapp_password:            "{{ na_password }}"
+# 
+## Linux Host Creds
+# lab_admin_user:             "root"
+# 
+## General Variables
+# wait_secs:                  35
+# wait_retry:                 15
+
+#--------------------------------------------------------------------------------------
+#
+# deployment: 
+#    Defines all the base values for VMs we want to create in our environment
+#    Define your VM values under a deployment as a type (see below)/
+#
+#    Supported Deployment Types are:
+#           linux
+#           ontap_sim
+#
+# LINUX HOST DEPLOYMENT EXAMPLE:
+#    - type:                       linux
+#      vms:
+#        - name:                   <hostname and name of VM>
+#          vm_os_template:         <vm template to clone from>
+#          static_ip:              <ip to assign the host>
+#          gateway:                <netwrok gateway ip>
+#          subnet:                 <subnetmask - ex. 255.255.255.0)
+#          dns:                    <dns server>
+#          search_domain:          <dns domain name>
+#          interface_name:         <network interface ex. ifcfg-ens33>
+#
+# ONTAP SIM DEPLOYMENT EXAMPLE
+#    - type:                       ontap_sim 
+#      vms:     
+#        - name:                   <name of VM>
+#          vm_os_template:         <vm template to clone from> 
+#          cluster_name:           <what you want the cluster name to be>
+#          cluster_mgmt_ip:        <what you want the cluster management interface IP to be> 
+#          cluster_mgmt_netmask:   <subnet mask for the management interface>
+#          node_ips:
+#            -                      <node 1 ip>
+#            -                      <node 2 ip>
+#
+#--------------------------------------------------------------------------------------
+ 
+# deployment:
+#     - type:                       linux 
+#       vms:
+#         - name:                   centos-1
+#           vm_os_template:         centos7_template
+#           static_ip:              10.0.0.10
+#           gateway:                10.0.0.1
+#           subnet:                 255.255.255.0
+#           dns:                    10.0.0.2
+#           search_domain:          my.domain.com
+#           interface_name:         ifcfg-ens33
+#           
+#         - name:                   devops-2
+#           vm_os_template:         ubuntu18_template
+#           static_ip:              10.0.0.11
+#           gateway:                10.0.0.1
+#           subnet:                 255.255.255.0
+#           dns:                    10.0.0.2
+#           search_domain:          my.domain.com
+#           interface_name:         ens33
+#          
+#     - type:                       ontap_sim   
+#       vms:     
+#         - name:                   devops-ontap
+#           vm_os_template:         ontap96_template
+#           cluster_name:           devops-clu
+#           cluster_mgmt_ip:        10.0.0.12  
+#           cluster_mgmt_netmask:   255.255.255.0
+#          node_ips:
+#            -                      10.0.0.13

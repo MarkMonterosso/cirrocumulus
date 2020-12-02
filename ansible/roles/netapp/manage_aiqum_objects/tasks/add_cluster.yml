@@ -1,0 +1,22 @@
+#######################################################################################
+#   
+#   Author      :   Mark Monterosso
+#   Date        :   20 Apr 20
+#   
+#   Description :  
+#                   
+#   Dependencies:   
+#                   
+#######################################################################################
+- name:                         "Adding Cluster: {{ cluster_name }} to AIQUM Server({{aiqum_server}})"
+  uri:
+    url:                        "https://{{aiqum_server}}/api/admin/datasources/clusters"
+    method:                     POST
+    user:                       "{{ aiqum_user }}"
+    password:                   "{{ aiqum_pass }}"
+    body:                       "{ \"address\": \"{{ aiqum_cluster }}\", \"password\": \"{{ aiqum_pass }}\", \"port\": 443, \"protocol\": \"https\", \"username\": \"<username>\"}"
+    body_format: json
+    headers:
+      Accept: application/json
+      authorization: Basic <auth token>
+    status_code: 201

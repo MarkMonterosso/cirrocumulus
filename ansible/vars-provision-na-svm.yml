@@ -1,0 +1,36 @@
+#######################################################################################
+#   
+#   Author      :   Mark Monterosso
+#   Date        :   20 Apr 20
+#   
+#   Description :   Params file for ManageIQ. Used for variable translation purposes
+#                   
+#   Dependencies:   
+#                   
+#######################################################################################
+netapp_hostname:
+svm_name:
+vserver_root_vol:
+vserver_security_style:
+vserver_allowed_protocols:
+lif_name:
+lif_address:
+lif_netmask:
+lif_protocols:
+export_policy_name:
+export_rule_client_match:
+export_rule_ro:
+export_rule_rw:
+export_rule_protocol:
+export_rule_su_security:
+ad_domain:
+ad_ou:
+vol_name:
+vol_aggr:
+vol_size:
+security_style:
+share_name:
+share_properties:
+symlink_properties:
+nameservers:
+operation:

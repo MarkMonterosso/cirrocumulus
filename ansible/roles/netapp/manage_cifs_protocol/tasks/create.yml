@@ -1,0 +1,37 @@
+#######################################################################################
+#   
+#   Author      :   Mark Monterosso
+#   Date        :   29 Apr 20
+#   
+#   Description :  
+#                   
+#   Dependencies:   
+#                   
+#######################################################################################
+
+#The DNS block needs to be moved into it's own set of roles
+- name:                     create DNS
+  na_ontap_dns:
+    state:                  present
+    hostname:               "{{ netapp_hostname }}"
+    username:               "{{ netapp_username }}"
+    password:               "{{ netapp_password }}"
+    vserver:                "{{ vserver.name }}"
+    domains:                "{{ vserver.ad_domain }}"
+    nameservers:            "{{ vserver.nameservers }}"
+    skip_validation:        true
+
+- name:                     "Creating Cifs Server on {{ vserver.name }}"
+  na_ontap_cifs_server:
+    state:                  present
+    force:                  yes
+    cifs_server_name:       "{{ vserver.name }}"
+    vserver:                "{{ vserver.name }}"
+    admin_user_name:        "{{ ad_username }}"
+    admin_password:         "{{ ad_password }}"
+    service_state:          "started" 
+    domain:                 "{{ vserver.ad_domain }}"
+    ou:                     "{{ vserver.ad_ou }}"
+    hostname:               "{{ netapp_hostname }}"
+    username:               "{{ netapp_username }}"
+    password:               "{{ netapp_password }}"

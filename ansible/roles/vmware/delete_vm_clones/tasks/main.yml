@@ -21,22 +21,25 @@
 #
 #--------------------------------------------------------------------------------------
 ---
+
 # Find clone ID
-- name:                 "Looking for VM {{ vm_vars.name }}"
+- name:                 "Looking for VM {{ vm_name }}"
   vm_get_facts:                                             # Custom Python Module 
-    vm_name:            "{{ vm_vars.name }}"
+    vm_name:            "{{ vm_name }}"
     rest_uri:           "{{ vmware_rest_uri }}"
     rest_username:      "{{ rest_username }}"
     rest_password:      "{{ rest_password }}"
   register:             vm_facts_return
+  ignore_errors:        true
 
 - name:                 "Storing VM Values"
   set_fact:
-    vm_id:          "{{ vm_facts_return.result.vm.id }}"
-    vm_power_state: "{{ vm_facts_return.result.vm.power_state }}"
+    vm_id:              "{{ vm_facts_return.result.vm.id }}"
+    vm_power_state:     "{{ vm_facts_return.result.vm.power_state }}"
+  when:                 vm_facts_return.failed == false
 
-# if power_state = suspended - Power on
-- name:                 "Powering on {{ vm_vars.name }}" 
+# If power_state = suspended - Power on
+- name:                 "Powering on {{ vm_name }}" 
   uri:
     method:             PUT
     url:                "{{ vmware_rest_uri }}/api/vms/{{ vm_id }}/power"
@@ -51,10 +54,12 @@
     force_basic_auth:   yes
     return_content:     yes
   when:
+    -                   vm_id is defined
     -                   vm_power_state == "suspended"
 
+
 # If power_state = paused - Unpause
-- name:                 "Unpausing {{ vm_vars.name }}" 
+- name:                 "Unpausing {{ vm_name }}" 
   uri:
     method:             PUT
     url:                "{{ vmware_rest_uri }}/api/vms/{{ vm_id }}/power"
@@ -69,10 +74,11 @@
     force_basic_auth:   yes
     return_content:     yes
   when:
+    -                   vm_id is defined
     -                   vm_power_state == "paused"
 
-# if power_state = poweredOn - Power off
-- name:                 "Powering off {{ vm_vars.name }}" 
+# If power_state = poweredOn - Power off
+- name:                 "Powering off {{ vm_name }}" 
   uri:
     method:             PUT
     url:                "{{ vmware_rest_uri }}/api/vms/{{ vm_id }}/power"
@@ -87,6 +93,7 @@
     force_basic_auth:   yes
     return_content:     yes
   when:
+    -                   vm_id is defined
     -                   vm_power_state != "poweredOff"
 
 #---------------------------------------------------------------------------------------
@@ -95,7 +102,7 @@
 #---------------------------------------------------------------------------------------
 
 # if power_state = poweredOff - Delete clone
-- name:                 "Deleting {{ vm_vars.name }}"
+- name:                 "Deleting {{ vm_name }}"
   uri:
     method:             DELETE
     url:                "{{ vmware_rest_uri }}/api/vms/{{ vm_id }}"
@@ -109,3 +116,5 @@
     validate_certs:     false
     force_basic_auth:   yes
     return_content:     yes
+  when:
+    -                 vm_id is defined

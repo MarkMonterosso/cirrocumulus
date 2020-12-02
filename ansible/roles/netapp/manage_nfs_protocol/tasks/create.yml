@@ -1,0 +1,38 @@
+#######################################################################################
+#   
+#   Author      :   Mark Monterosso
+#   Date        :   20 Apr 20
+#   
+#   Description :  
+#                   
+#   Dependencies:   
+#                   
+#######################################################################################
+- name: Enable/Change NFS Protocol(s) State
+  na_ontap_nfs:
+    state:                          present
+    service_state:                  started
+    vserver:                        "{{ vserver }}"
+    nfsv3:                          "{{ nfsv3                   | default('disabled') }}"
+    nfsv4:                          "{{ nfsv4                   | default('disabled') }}"
+    nfsv41:                         "{{ nfsv41                  | default('disabled') }}"
+    nfsv3_fsid_change:              "{{ nfsv3_fsid_change       | default(omit) }}"
+    nfsv4_fsid_change:              "{{ nfsv4_fsid_change       | default(omit) }}"
+    nfsv4_id_domain:                "{{ nfsv4_id_domain         | default(omit) }}"
+    nfsv4_numeric_ids:              "{{ nfsv4_numeric_ids       | default(omit) }}"
+    nfsv40_acl:                     "{{ nfsv40_acl              | default(omit) }}"
+    nfsv40_referrals:               "{{ nfsv40_referrals        | default(omit) }}" 
+    nfsv40_read_delegation:         "{{ nfsv40_read_delegation  | default(omit) }}" 
+    nfsv41_acl:                     "{{ nfsv41_acl              | default(omit) }}"
+    nfsv41_referrals:               "{{ nfsv41_referrals        | default(omit) }}" 
+    nfsv41_write_delegation:        "{{ nfsv41_write_delegation | default(omit) }}" 
+    nfsv41_pnfs:                    "{{ nfsv41_pnfs             | default(omit) }}"
+    tcp_max_xfer_size:              "{{ tcp_max_xfer_size       | default(omit) }}" 
+    tcp:                            "{{ tcp }}                  | default(omit) }}"
+    udp:                            "{{ udp }}                  | default(omit) }}"
+    vstorage_state:                 "{{ vstorage_state          | default(omit) }}"
+    showmount:                      "{{ showmount               | default(omit) }}"
+    hostname:                       "{{ netapp_hostname }}"
+    username:                       "{{ netapp_username }}"
+    password:                       "{{ netapp_password }}"
+  register:                         nfs_create_output
