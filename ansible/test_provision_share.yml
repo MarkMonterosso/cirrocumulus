@@ -101,3 +101,13 @@
           when:
             -                           volumes is defined
             -                           operation == 'delete'
+
+        - name:                         "Invoking CIFS Share Management Tasks"
+          include_role:             
+            name:                       netapp/manage_cifs_shares
+          loop:                         "{{ cifs_shares }}"
+          loop_control:             
+            loop_var:                   cifs_share
+          when:
+            -                           cifs_shares is defined
+            -                           operation == 'delete'
